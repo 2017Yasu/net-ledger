@@ -1,0 +1,155 @@
+openapi: 3.0.0
+info:
+  title: Salary Recorder API
+  version: 1.0.0
+  description: API for managing user authentication and salary records.
+
+paths:
+  /api/auth/register:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '201':
+          description: User created successfully.
+        '400':
+          description: Invalid input.
+
+  /api/auth/login:
+    post:
+      summary: Log in a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful. Returns a session token.
+        '401':
+          description: Unauthorized.
+
+  /api/auth/logout:
+    post:
+      summary: Log out a user
+      responses:
+        '200':
+          description: Logout successful.
+
+  /api/salary:
+    get:
+      summary: Get all salary records for the logged-in user
+      responses:
+        '200':
+          description: A list of salary records.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SalaryRecord'
+    post:
+      summary: Create a new salary record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SalaryRecordInput'
+      responses:
+        '201':
+          description: Salary record created successfully.
+        '400':
+          description: Invalid input.
+
+  /api/salary/{recordId}:
+    get:
+      summary: Get a specific salary record
+      parameters:
+        - name: recordId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The requested salary record.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalaryRecord'
+    put:
+      summary: Update a salary record
+      parameters:
+        - name: recordId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SalaryRecordInput'
+      responses:
+        '200':
+          description: Salary record updated successfully.
+    delete:
+      summary: Delete a salary record
+      parameters:
+        - name: recordId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Salary record deleted successfully.
+
+components:
+  schemas:
+    SalaryRecordInput:
+      type: object
+      properties:
+        month:
+          type: integer
+        year:
+          type: integer
+        # Add all other fields from the data model here
+        baseSalary:
+          type: number
+          format: decimal
+    SalaryRecord:
+      allOf:
+        - $ref: '#/components/schemas/SalaryRecordInput'
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            userId:
+              type: string
+              format: uuid
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
