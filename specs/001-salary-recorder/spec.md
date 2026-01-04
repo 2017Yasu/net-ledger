@@ -51,7 +51,7 @@ As a logged-in user, I want to view a list of my past salary records and inspect
 - **FR-003**: A salary record MUST accommodate all fields specified in the user description, respecting which are optional.
 - **FR-004**: Users MUST NOT be able to view or edit the salary records of other users.
 - **FR-005**: The system MUST provide clear validation and error messages for incorrect data entry (e.g., non-numeric input in a currency field).
-- **FR-006**: The system MUST allow the user to specify the month and year for each salary record. [NEEDS CLARIFICATION: How is the period (month/year) for a salary record determined? e.g., user selection via dropdown, default to current month, etc.]
+- **FR-006**: The system MUST default the salary record to the current month and year, but allow the user to change this period.
 
 ### Non-Functional Requirements (Constitution-Driven)
 - **NFR-001 (Performance)**: The salary data form must load in under 2 seconds. Saved data should be retrievable in under 1 second.
