@@ -95,10 +95,24 @@
 - **FR-006**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
 - **FR-007**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
 
+### Non-Functional Requirements (Constitution-Driven)
+
+- **NFR-001 (Performance)**: What are the specific performance targets for this feature (e.g., LCP < 2.5s, API response time < 200ms)?
+- **NFR-002 (Accessibility)**: How will this feature meet WCAG 2.1 AA standards (e.g., keyboard navigation, screen reader compatibility, color contrast)?
+- **NFR-003 (Security)**: What are the security risks and how will they be mitigated (e.g., input validation, authentication/authorization checks)?
+- **NFR-004 (Observability)**: What logging, metrics, or tracing is required to monitor the health and usage of this feature?
+
 ### Key Entities *(include if feature involves data)*
 
 - **[Entity 1]**: [What it represents, key attributes without implementation]
 - **[Entity 2]**: [What it represents, relationships to other entities]
+
+### Technical Design
+
+- **Component Breakdown**: What new or modified React components will be needed?
+- **State Management**: How will the state for this feature be managed?
+- **Data Fetching**: What data fetching strategy will be used (e.g., `fetch` in Server Components, SWR/React Query in Client Components)?
+- **API Endpoints**: What new or existing API endpoints will be used?
 
 ## Success Criteria *(mandatory)*
 

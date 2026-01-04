@@ -1,50 +1,70 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+---
+Sync Impact Report
+---
+Version Change: None → 1.0.0
+Added Sections:
+- Core Principles
+- Development Workflow
+- Governance
+Modified Principles: N/A (Initial creation)
+Templates Requiring Updates:
+- ✅ .specify/templates/plan-template.md
+- ✅ .specify/templates/spec-template.md
+- ✅ .specify/templates/tasks-template.md
+- ✅ .gemini/commands/speckit.constitution.toml
+Follow-up TODOs: None
+-->
+# net-ledger Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Code Quality and Consistency
+All code MUST adhere to a strict set of quality standards. This includes:
+- **Typing**: Full TypeScript adoption is mandatory. The `any` type is disallowed; use `unknown` for gradual typing and type guards. All new code must have strict type coverage.
+- **Linting**: ESLint, configured with the recommended rules for TypeScript, React (`eslint-plugin-react-hooks`), and Next.js, is enforced across the entire codebase. All code MUST be free of linting errors before being merged.
+- **Formatting**: Prettier is used for non-negotiable, automated code formatting to ensure a uniform style and prevent debates on code layout.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Rigorous and Automated Testing
+Quality is ensured through a multi-layered, automated testing strategy.
+- **Unit Tests**: All new components, hooks, and utility functions MUST be accompanied by comprehensive unit tests using Jest and React Testing Library. Test coverage targets must be met for every pull request.
+- **Integration Tests**: Key user flows and API integrations MUST be covered by integration tests to ensure that different parts of the application work together correctly.
+- **End-to-End (E2E) Tests**: Critical user paths, such as authentication and core feature workflows, MUST be validated with an E2E testing framework (Playwright) to guarantee real-world functionality.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Consistent and Accessible User Experience
+The user interface MUST be consistent, predictable, and accessible to all users.
+- **Component-Based Design**: Build the UI using a centralized component library (Material-UI). New UI patterns MUST be encapsulated as reusable, documented components. Avoid one-off styles or components.
+- **Accessibility (a11y)**: All components and features MUST adhere to WCAG 2.1 Level AA standards. Automated accessibility checks and manual testing are a required part of the development workflow.
+- **State Management**: Use React's built-in state management (e.g., `useState`, `useReducer`, Context API) for local and simple component state. For global or complex state, a single, dedicated library (e.g., Zustand, Redux Toolkit) MUST be used consistently across the application.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Performance by Default
+The application MUST be fast, responsive, and efficient. Performance is a core feature.
+- **Next.js Optimizations**: Actively and correctly utilize Next.js performance features, including `next/image` for image optimization, `next/font` for font loading, and `next/script` for third-party scripts.
+- **Rendering Strategy**: The choice of rendering strategy (SSR, SSG, ISR, CSR) for each page MUST be deliberate and justified based on its data requirements and volatility.
+- **Bundle Size**: The application's bundle size must be regularly monitored. Introducing heavy dependencies requires explicit justification and approval.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Clear and Intentional Git Practices
+Version control history MUST be clean, understandable, and serve as a reliable project log.
+- **Conventional Commits**: All commit messages MUST follow the Conventional Commits specification to enable automated versioning and clear changelogs.
+- **Branching Strategy**: A consistent branching model (e.g., GitHub Flow) is required. Feature branches MUST be short-lived and rebased on the main branch before merging to maintain a linear history. Branch names should follow the rules below:
+  - `feature/*`: Branch for adding a feature.
+  - `refactor/*`: Branch for only refactoring.
+  - `fix/*`: Branch for fixing trivial bugs.
+- **Pull Requests**: All code changes MUST be submitted via a Pull Request. A PR requires at least one approval from another team member and must pass all automated CI checks (linting, testing, builds) before it can be merged.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Development Workflow
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
-
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
-
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+The development process follows a structured workflow to ensure quality and predictability.
+- **Specification**: New features begin with a clear specification that outlines the user requirements, technical approach, and acceptance criteria.
+- **Implementation**: Code is developed on feature branches, strictly adhering to the principles outlined in this constitution.
+- **Code Review**: All Pull Requests undergo a mandatory peer review to verify correctness, style, and adherence to constitutional principles.
+- **Deployment**: Merges to the `main` branch trigger automated, idempotent deployments to a staging environment for final verification before a controlled release to production.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution is the foundational law of the project, ensuring long-term quality and maintainability.
+- **Compliance**: All code contributions are measured against these principles. Pull Requests that violate the constitution WILL be rejected until they are brought into compliance.
+- **Amendments**: Changes to this constitution require a team discussion and a formal proposal via a Pull Request. The PR must provide a clear rationale for the change and document its potential impact.
+- **Versioning**: The constitution follows Semantic Versioning (Major.Minor.Patch) to track its evolution.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-01-04 | **Last Amended**: 2026-01-04

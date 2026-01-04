@@ -11,27 +11,25 @@
 
 ## Technical Context
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
-
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [single/web/mobile - determines source structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
+**Language/Version**: TypeScript (latest), Node.js (LTS)
+**Primary Dependencies**: Next.js, React, Jest, React Testing Library, Playwright, Material-UI
+**Storage**: PostgreSQL
+**Testing**: Jest (Unit), React Testing Library (Unit/Integration), Playwright (E2E)
+**Target Platform**: Web (Modern Browsers)
+**Project Type**: Web Application
+**Performance Goals**: Core Web Vitals (LCP < 2.5s), Lighthouse Score > 90
+**Constraints**: Must follow WCAG 2.1 AA accessibility standards. Bundle size increase requires justification.
 **Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+- **[ ] I. Code Quality**: Does the plan account for strict TypeScript, ESLint, and Prettier standards?
+- **[ ] II. Testing**: Does the plan include tasks for unit, integration, and E2E tests for the feature?
+- **[ ] III. UX Consistency**: Does the plan leverage the existing Material-UI component library for all UI development?
+- **[ ] IV. Performance**: Has the appropriate Next.js rendering strategy (SSR, SSG, ISR) been chosen and justified for new pages?
+- **[ ] V. Git Practices**: Is the work broken down into small, logical PRs suitable for Conventional Commits?
 
 ## Project Structure
 
@@ -48,51 +46,27 @@ specs/[###-feature]/
 ```
 
 ### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
 
 ```text
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
-src/
-├── models/
-├── services/
-├── cli/
-└── lib/
+# Standard Next.js App Router Structure
+app/
+├── (api)/               # API Routes
+├── (components)/        # UI Components (Server & Client)
+│   ├── layout/
+│   └── ui/
+├── (features)/          # Feature-specific modules
+└── (pages)/             # Main page routes
+    └── [feature-name]/
+        ├── page.tsx
+        └── layout.tsx
 
 tests/
-├── contract/
-├── integration/
-└── unit/
-
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
-
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
-
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
+├── e2e/                 # Playwright E2E tests
+├── integration/         # Integration tests
+└── unit/                # Jest/RTL unit tests
 ```
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+**Structure Decision**: The project will follow the standard Next.js App Router structure, co-locating components, features, and pages as shown.
 
 ## Complexity Tracking
 
@@ -100,5 +74,5 @@ directories captured above]
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+| [e.g., Deviating from Material-UI] | [e.g., A custom chart library is required] | [e.g., Material-UI charts lack feature X] |
+| [e.g., Disabling a lint rule] | [e.g., A third-party library has conflicts] | [e.g., Fixing the library is out of scope] |
