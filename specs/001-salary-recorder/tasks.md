@@ -1,120 +1,105 @@
----
-description: "Task list for implementing the Salary Recorder feature."
----
+# Tasks: Salary Recorder Feature Implementation
 
-# Tasks: Salary Recorder
+**Feature Name**: Salary Recorder
+**Branch**: `001-salary-recorder`
+**Date**: 2026-01-05
+**Input**: `plan.md`, `spec.md`, `data-model.md`, `contracts/openapi.yml`, `research.md`, `quickstart.md`
 
-**Input**: Design documents from `/specs/001-salary-recorder/`
-**Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/
+## Summary
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing.
+This document outlines the sequential and parallelizable tasks required to implement the Salary Recorder feature, organized by development phase and user story. The implementation follows a phased approach, prioritizing core functionalities and ensuring test coverage at each stage.
 
-## Format: `[ID] [P?] [Story] Description`
+## Phases
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2)
-- Include exact file paths in descriptions.
+### Phase 1: Setup
 
-## Path Conventions
+*Goal*: Initialize project structure, development tools, and database configuration.
 
-- **Source**: `app/`
-- **Tests**: `tests/unit`, `tests/e2e`
+- [ ] T001 Create project structure as per `plan.md` and `quickstart.md` (`src/app/`, `tests/` directories).
+- [ ] T002 Configure ESLint, Prettier, and TypeScript per `constitution.md` and `plan.md` (e.g., `.eslintrc.js`, `prettier.config.js`, `tsconfig.json`).
+- [ ] T003 Set up Docker Compose for PostgreSQL database in `docker/compose.yml`.
+- [ ] T004 Configure Prisma ORM by creating `prisma/schema.prisma` with initial `User` and `SalaryRecord` models.
+- [ ] T005 Create initial Prisma migration for `User` and `SalaryRecord` models (`prisma/migrations/`).
+- [ ] T006 Configure environment variables (`.env`, `.env.example`).
 
----
+### Phase 2: Foundational
 
-## Phase 1: Setup (Shared Infrastructure)
+*Goal*: Establish core database connection and authentication utilities as prerequisites for all user stories.
 
-**Purpose**: Configure the development environment and install dependencies.
+- [ ] T007 Implement database connection utility in `src/lib/prisma.ts`.
+- [ ] T008 Implement authentication service/utility (e.g., JWT token handling, password hashing) in `src/lib/auth.ts`.
 
-- [ ] T001 Create a `docker/compose.yml` file for the PostgreSQL container.
-- [ ] T002 Create `eslint.config.mjs` with the configuration from `research.md`.
-- [ ] T003 Create `.prettierrc.json` with the configuration from `research.md`.
-- [ ] T004 Update `package.json` with the scripts for linting, formatting, and type-checking from `research.md`.
-- [ ] T005 Run `pnpm install` to ensure all dependencies from `plan.md` are installed.
-- [ ] T006 Set up Jest and Playwright testing environments.
+### Phase 3: User Story 1 - Secure User Authentication (Priority: P1)
 
----
+*Story Goal*: As a user, I want to securely log in to the application using my username and password so that I can access my personal salary information.
+*Independent Test Criteria*: A user can register, log in, and log out. An unauthorized user cannot access any salary data.
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [ ] T009 [US1] Define Prisma `User` model with attributes (`id`, `username`, `passwordHash`, `createdAt`, `updatedAt`) in `prisma/schema.prisma`.
+- [ ] T010 [P] [US1] Create API route for user registration (`POST /api/auth/register`) in `src/app/api/auth/register/route.ts`.
+- [ ] T011 [P] [US1] Create API route for user login (`POST /api/auth/login`) in `src/app/api/auth/login/route.ts`.
+- [ ] T012 [P] [US1] Create API route for user logout (`POST /api/auth/logout`) in `src/app/api/auth/logout/route.ts`.
+- [ ] T013 [P] [US1] Implement `LoginForm` component using Material-UI in `src/app/(components)/ui/LoginForm.tsx`.
+- [ ] T014 [P] [US1] Implement `RegistrationForm` component using Material-UI in `src/app/(components)/ui/RegistrationForm.tsx`.
+- [ ] T015 [P] [US1] Create authentication pages for login and registration in `src/app/(pages)/auth/login/page.tsx` and `src/app/(pages)/auth/register/page.tsx`.
+- [ ] T016 [US1] Implement authentication context/state management (e.g., Zustand/React Context) in `src/lib/auth-context.ts`.
+- [ ] T017 [US1] Implement client-side authentication logic and API integration for `LoginForm` and `RegistrationForm`.
+- [ ] T018 [US1] Implement route protection middleware for authenticated routes in `src/middleware.ts`.
+- [ ] T019 [US1] Write unit tests for authentication utilities in `tests/unit/auth.test.ts`.
+- [ ] T020 [US1] Write integration tests for API authentication routes in `tests/integration/api/auth.test.ts`.
+- [ ] T021 [US1] Write E2E tests for user registration, login, and logout flows in `tests/e2e/auth.spec.ts`.
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented.
+### Phase 4: User Story 2 - Record Monthly Salary Information (Priority: P1)
 
-- [ ] T007 [P] Initialize Prisma and create the initial schema in `prisma/schema.prisma` based on `data-model.md`, connecting to the PostgreSQL container.
-- [ ] T008 Run `pnpm prisma migrate dev` to create the initial database migration.
-- [ ] T009 [P] Configure NextAuth.js for authentication in `app/api/auth/[...nextauth]/route.ts`.
-- [ ] T010 [P] Create shared layout components in `app/(components)/layout/`.
-- [ ] T011 [P] Configure a shared logging service.
+*Story Goal*: As a logged-in user, I want to create or update my salary information for a specific month so that I have an accurate record of my earnings and deductions.
+*Independent Test Criteria*: A user can fill out and save the salary form for a given month. The saved data is retrieved accurately when the user revisits the form.
 
----
+- [ ] T022 [US2] Define Prisma `SalaryRecord` model with all specified attributes in `prisma/schema.prisma`.
+- [ ] T023 [P] [US2] Create API route for `POST /api/salary` (create salary record) in `src/app/api/salary/route.ts`.
+- [ ] T024 [P] [US2] Create API route for `PUT /api/salary/{recordId}` (update salary record) in `src/app/api/salary/[recordId]/route.ts`.
+- [ ] T025 [P] [US2] Implement `SalaryForm` component using Material-UI in `src/app/(components)/ui/SalaryForm.tsx`.
+- [ ] T026 [P] [US2] Create "Record Salary" page in `src/app/(pages)/salary/record/page.tsx`.
+- [ ] T027 [US2] Implement client-side logic for `SalaryForm` submission and data fetching.
+- [ ] T028 [US2] Implement server-side validation for `SalaryRecord` creation/update (e.g., non-negative values, month/year range).
+- [ ] T029 [US2] Write unit tests for `SalaryRecord` model validation logic.
+- [ ] T030 [US2] Write integration tests for `SalaryRecord` API routes in `tests/integration/api/salary.test.ts`.
+- [ ] T031 [US2] Write E2E tests for creating and updating salary records in `tests/e2e/salary-record.spec.ts`.
 
-## Phase 3: User Story 1 - Secure User Authentication (Priority: P1) 🎯 MVP
+### Phase 5: User Story 3 - View Historical Salary Data (Priority: P2)
 
-**Goal**: Allow users to securely register and log in.
-**Independent Test**: A new user can create an account, log in, and see a welcome message. An existing user can log in.
+*Story Goal*: As a logged-in user, I want to view a list of my past salary records and inspect the details of each one so that I can track my earnings over time.
+*Independent Test Criteria*: A user can see a list of months for which they have recorded salary and can click on one to view the full details.
 
-### Tests for User Story 1
-- [ ] T012 [P] [US1] Unit test for the `LoginForm` component in `tests/unit/LoginForm.test.tsx`.
-- [ ] T013 [P] [US1] E2E test for the registration and login flow in `tests/e2e/auth.spec.ts`.
+- [ ] T032 [P] [US3] Create API route for `GET /api/salary` (list salary records) in `src/app/api/salary/route.ts`.
+- [ ] T033 [P] [US3] Create API route for `GET /api/salary/{recordId}` (get single salary record) in `src/app/api/salary/[recordId]/route.ts`.
+- [ ] T034 [P] [US3] Implement `SalaryHistoryList` component using Material-UI in `src/app/(components)/ui/SalaryHistoryList.tsx`.
+- [ ] T035 [P] [US3] Implement `SalaryDetailView` component using Material-UI in `src/app/(components)/ui/SalaryDetailView.tsx`.
+- [ ] T036 [P] [US3] Create "History" page in `src/app/(pages)/salary/history/page.tsx`.
+- [ ] T037 [P] [US3] Create "Salary Detail" page in `src/app/(pages)/salary/history/[recordId]/page.tsx`.
+- [ ] T038 [US3] Implement data fetching for historical records (SSR/CSR as per `research.md`).
+- [ ] T039 [US3] Write E2E tests for viewing historical salary data in `tests/e2e/salary-history.spec.ts`.
 
-### Implementation for User Story 1
-- [ ] T014 [P] [US1] Create the `User` model in the `prisma/schema.prisma` file if not already present.
-- [ ] T015 [US1] Implement the `POST /api/auth/register` endpoint in `app/api/auth/register/route.ts`.
-- [ ] T016 [US1] Implement the `POST /api/auth/login` endpoint logic within the NextAuth.js configuration.
-- [ ] T017 [P] [US1] Create the `RegistrationForm` component in `app/(components)/ui/RegistrationForm.tsx`.
-- [ ] T018 [P] [US1] Create the `LoginForm` component in `app/(components)/ui/LoginForm.tsx`.
-- [ ] T019 [US1] Create the registration page at `app/(pages)/register/page.tsx`.
-- [ ] T020 [US1] Create the login page at `app/(pages)/login/page.tsx`.
+### Final Phase: Polish & Cross-Cutting Concerns
 
----
+*Goal*: Address non-functional requirements, optimize, and finalize documentation.
 
-## Phase 4: User Story 2 - Record Monthly Salary Information (Priority: P1)
+- [ ] T040 [P] Implement global error handling (e.g., `src/app/error.tsx`).
+- [ ] T041 [P] Implement logging for key events (e.g., user login, record creation, updates) in `src/lib/logger.ts`.
+- [ ] T042 [P] Ensure all UI components adhere to WCAG 2.1 AA accessibility standards.
+- [ ] T043 [P] Review and optimize application for performance (e.g., bundle size, data fetching).
+- [ ] T044 Final documentation updates and `README.md` (`README.md`).
 
-**Goal**: Allow users to create and update their monthly salary records.
-**Independent Test**: A logged-in user can fill out and save the salary form.
+## Dependencies
 
-### Tests for User Story 2
-- [ ] T021 [P] [US2] Unit test for the `SalaryForm` component in `tests/unit/SalaryForm.test.tsx`.
-- [ ] T022 [P] [US2] E2E test for creating and updating a salary record in `tests/e2e/salary.spec.ts`.
+- Phase 1 (Setup) -> Phase 2 (Foundational) -> Phase 3 (US1) -> Phase 4 (US2) -> Phase 5 (US3) -> Final Phase
+- Within each User Story phase, tasks generally follow: Model/API -> UI Components -> Pages -> Client-side Logic -> Tests.
+- Parallelizable tasks (`[P]`) within a phase can be worked on concurrently if they don't have direct file-based dependencies.
 
-### Implementation for User Story 2
-- [ ] T023 [P] [US2] Create the `SalaryRecord` model in the `prisma/schema.prisma` file.
-- [ ] T024 [US2] Implement the `POST /api/salary` endpoint in `app/api/salary/route.ts`.
-- [ ] T025 [US2] Implement the `PUT /api/salary/{recordId}` endpoint in `app/api/salary/[recordId]/route.ts`.
-- [ ] T026 [P] [US2] Create the `SalaryForm` component in `app/(components)/ui/SalaryForm.tsx`.
-- [ ] T027 [US2] Create the salary recording page at `app/(pages)/salary/record/page.tsx`.
+## Parallel Execution Examples
 
----
-
-## Phase 5: User Story 3 - View Historical Salary Data (Priority: P2)
-
-**Goal**: Allow users to view their past salary records.
-**Independent Test**: A logged-in user can view a list of their past records and see the details of a single record.
-
-### Tests for User Story 3
-- [ ] T028 [P] [US3] Unit test for the `SalaryHistoryList` component in `tests/unit/SalaryHistoryList.test.tsx`.
-- [ ] T029 [P] [US3] E2E test for viewing the salary history in `tests/e2e/history.spec.ts`.
-
-### Implementation for User Story 3
-- [ ] T030 [US3] Implement the `GET /api/salary` endpoint in `app/api/salary/route.ts`.
-- [ ] T031 [US3] Implement the `GET /api/salary/{recordId}` endpoint in `app/api/salary/[recordId]/route.ts`.
-- [ ] T032 [P] [US3] Create the `SalaryHistoryList` component in `app/(components)/ui/SalaryHistoryList.tsx`.
-- [ ] T033 [P] [US3] Create the `SalaryDetailView` component in `app/(components)/ui/SalaryDetailView.tsx`.
-- [ ] T034 [US3] Create the history page at `app/(pages)/salary/history/page.tsx`.
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-- [ ] T035 [P] Add documentation for all new components.
-- [ ] T036 Refactor code based on peer review feedback.
-- [ ] T037 Perform a final accessibility audit.
-- [ ] T038 Perform a performance review of the application.
-
----
+- **Phase 3 (US1)**: T010, T011, T012 (API routes) can be developed in parallel with T013, T014 (UI components).
+- **Phase 4 (US2)**: T023, T024 (API routes) can be developed in parallel with T025 (UI component).
+- **Phase 5 (US3)**: T032, T033 (API routes) can be developed in parallel with T034, T035 (UI components).
 
 ## Implementation Strategy
 
-1.  **Complete Phase 1 & 2**: The foundational setup is critical and blocks all feature work.
-2.  **Implement User Story 1**: Write failing tests, then implement the feature until tests pass.
-3.  **Validate MVP**: Test User Story 1 independently. This is the MVP.
-4.  **Iterate**: Continue with User Stories 2 and 3, following the same test-first process.
+The implementation will follow an MVP-first approach, delivering each user story incrementally. User Story 1 (Secure User Authentication) is the initial MVP, providing a functional core for subsequent features. User Story 2 (Record Monthly Salary Information) builds upon this, followed by User Story 3 (View Historical Salary Data). Cross-cutting concerns and polish will be addressed in the final phase.
