@@ -2,10 +2,17 @@ openapi: 3.0.0
 info:
   title: Salary Recorder API
   version: 1.0.0
-  description: API for managing user authentication and salary records.
+  description: API for managing user authentication and monthly salary records.
+
+servers:
+  - url: http://localhost:3000/api
+    description: Local Development Server
+
+security:
+  - bearerAuth: []
 
 paths:
-  /api/auth/register:
+  /auth/register:
     post:
       summary: Register a new user
       requestBody:
@@ -13,143 +20,598 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                password:
-                  type: string
+              $ref: '#/components/schemas/RegisterRequest'
       responses:
         '201':
-          description: User created successfully.
+          description: User successfully registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
         '400':
-          description: Invalid input.
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Username already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
-  /api/auth/login:
+  /auth/login:
     post:
-      summary: Log in a user
+      summary: Authenticate user and get a token
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                password:
-                  type: string
+              $ref: '#/components/schemas/LoginRequest'
       responses:
         '200':
-          description: Login successful. Returns a session token.
+          description: User successfully logged in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
         '401':
-          description: Unauthorized.
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
-  /api/auth/logout:
+  /auth/logout:
     post:
-      summary: Log out a user
+      summary: Log out current user (invalidate token/session)
+      security:
+        - bearerAuth: []
       responses:
-        '200':
-          description: Logout successful.
+        '204':
+          description: User successfully logged out
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
-  /api/salary:
+  /salary:
     get:
-      summary: Get all salary records for the logged-in user
+      summary: Get all salary records for the authenticated user
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: year
+          schema:
+            type: integer
+          description: Filter records by year
+        - in: query
+          name: month
+          schema:
+            type: integer
+          description: Filter records by month
       responses:
         '200':
-          description: A list of salary records.
+          description: List of salary records
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/SalaryRecord'
-    post:
-      summary: Create a new salary record
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SalaryRecordInput'
-      responses:
-        '201':
-          description: Salary record created successfully.
-        '400':
-          description: Invalid input.
-
-  /api/salary/{recordId}:
-    get:
-      summary: Get a specific salary record
-      parameters:
-        - name: recordId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: The requested salary record.
+                  $ref: '#/components/schemas/SalaryRecordResponse'
+        '401':
+          description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SalaryRecord'
-    put:
-      summary: Update a salary record
-      parameters:
-        - name: recordId
-          in: path
-          required: true
-          schema:
-            type: string
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: No salary records found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create a new salary record for the authenticated user
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SalaryRecordInput'
+              $ref: '#/components/schemas/SalaryRecordCreateRequest'
+      responses:
+        '201':
+          description: Salary record successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalaryRecordResponse'
+        '400':
+          description: Invalid input or record for month/year already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /salary/{recordId}:
+    parameters:
+      - in: path
+        name: recordId
+        schema:
+          type: string
+          format: uuid
+        required: true
+        description: Unique identifier of the salary record
+    get:
+      summary: Get a specific salary record by ID for the authenticated user
+      security:
+        - bearerAuth: []
       responses:
         '200':
-          description: Salary record updated successfully.
+          description: Details of the salary record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalaryRecordResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (user does not own this record)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Salary record not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Update a specific salary record by ID for the authenticated user
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SalaryRecordUpdateRequest'
+      responses:
+        '200':
+          description: Salary record successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalaryRecordResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (user does not own this record)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Salary record not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
     delete:
-      summary: Delete a salary record
-      parameters:
-        - name: recordId
-          in: path
-          required: true
-          schema:
-            type: string
+      summary: Delete a specific salary record by ID for the authenticated user
+      security:
+        - bearerAuth: []
       responses:
         '204':
-          description: Salary record deleted successfully.
+          description: Salary record successfully deleted
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (user does not own this record)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Salary record not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
   schemas:
-    SalaryRecordInput:
+    RegisterRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          minLength: 3
+        password:
+          type: string
+          minLength: 8
+
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: JWT authentication token
+        user:
+          $ref: '#/components/schemas/UserResponse'
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    SalaryRecordCreateRequest:
+      type: object
+      required:
+        - month
+        - year
+        - baseSalary
+        - grossEarnings
+        - netPay
+      properties:
+        month:
+          type: integer
+          minimum: 1
+          maximum: 12
+        year:
+          type: integer
+        attendanceDays:
+          type: number
+          format: float
+          minimum: 0
+        daysWorked:
+          type: number
+          format: float
+          minimum: 0
+        regularOvertimeHours:
+          type: number
+          format: float
+          minimum: 0
+        lateNightOvertimeHours:
+          type: number
+          format: float
+          minimum: 0
+        workingHours:
+          type: number
+          format: float
+          minimum: 0
+        baseSalary:
+          type: number
+          format: float
+          minimum: 0
+        overtimeAllowance:
+          type: number
+          format: float
+          minimum: 0
+        commutingAllowance:
+          type: number
+          format: float
+          minimum: 0
+        otherAllowances:
+          type: number
+          format: float
+          minimum: 0
+        grossEarnings:
+          type: number
+          format: float
+          minimum: 0
+        socialInsuranceContributions:
+          type: number
+          format: float
+          minimum: 0
+        taxableAmount:
+          type: number
+          format: float
+          minimum: 0
+        incomeTax:
+          type: number
+          format: float
+          minimum: 0
+        residentTax:
+          type: number
+          format: float
+          minimum: 0
+        otherTaxes:
+          type: number
+          format: float
+          minimum: 0
+        totalDeductions:
+          type: number
+          format: float
+          minimum: 0
+        netPay:
+          type: number
+          format: float
+          minimum: 0
+        yearEndTaxAdjustment:
+          type: number
+          format: float
+          minimum: 0
+        paidTimeOffDaysUsed:
+          type: number
+          format: float
+          minimum: 0
+        paidTimeOffDaysRemaining:
+          type: number
+          format: float
+          minimum: 0
+
+    SalaryRecordUpdateRequest:
       type: object
       properties:
         month:
           type: integer
+          minimum: 1
+          maximum: 12
         year:
           type: integer
-        # Add all other fields from the data model here
+        attendanceDays:
+          type: number
+          format: float
+          minimum: 0
+        daysWorked:
+          type: number
+          format: float
+          minimum: 0
+        regularOvertimeHours:
+          type: number
+          format: float
+          minimum: 0
+        lateNightOvertimeHours:
+          type: number
+          format: float
+          minimum: 0
+        workingHours:
+          type: number
+          format: float
+          minimum: 0
         baseSalary:
           type: number
-          format: decimal
-    SalaryRecord:
-      allOf:
-        - $ref: '#/components/schemas/SalaryRecordInput'
-        - type: object
-          properties:
-            id:
-              type: string
-              format: uuid
-            userId:
-              type: string
-              format: uuid
-            createdAt:
-              type: string
-              format: date-time
-            updatedAt:
-              type: string
-              format: date-time
+          format: float
+          minimum: 0
+        overtimeAllowance:
+          type: number
+          format: float
+          minimum: 0
+        commutingAllowance:
+          type: number
+          format: float
+          minimum: 0
+        otherAllowances:
+          type: number
+          format: float
+          minimum: 0
+        grossEarnings:
+          type: number
+          format: float
+          minimum: 0
+        socialInsuranceContributions:
+          type: number
+          format: float
+          minimum: 0
+        taxableAmount:
+          type: number
+          format: float
+          minimum: 0
+        incomeTax:
+          type: number
+          format: float
+          minimum: 0
+        residentTax:
+          type: number
+          format: float
+          minimum: 0
+        otherTaxes:
+          type: number
+          format: float
+          minimum: 0
+        totalDeductions:
+          type: number
+          format: float
+          minimum: 0
+        netPay:
+          type: number
+          format: float
+          minimum: 0
+        yearEndTaxAdjustment:
+          type: number
+          format: float
+          minimum: 0
+        paidTimeOffDaysUsed:
+          type: number
+          format: float
+          minimum: 0
+        paidTimeOffDaysRemaining:
+          type: number
+          format: float
+          minimum: 0
+
+    SalaryRecordResponse:
+      type: object
+      required:
+        - id
+        - userId
+        - month
+        - year
+        - baseSalary
+        - grossEarnings
+        - netPay
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        month:
+          type: integer
+          minimum: 1
+          maximum: 12
+        year:
+          type: integer
+        attendanceDays:
+          type: number
+          format: float
+          minimum: 0
+        daysWorked:
+          type: number
+          format: float
+          minimum: 0
+        regularOvertimeHours:
+          type: number
+          format: float
+          minimum: 0
+        lateNightOvertimeHours:
+          type: number
+          format: float
+          minimum: 0
+        workingHours:
+          type: number
+          format: float
+          minimum: 0
+        baseSalary:
+          type: number
+          format: float
+          minimum: 0
+        overtimeAllowance:
+          type: number
+          format: float
+          minimum: 0
+        commutingAllowance:
+          type: number
+          format: float
+          minimum: 0
+        otherAllowances:
+          type: number
+          format: float
+          minimum: 0
+        grossEarnings:
+          type: number
+          format: float
+          minimum: 0
+        socialInsuranceContributions:
+          type: number
+          format: float
+          minimum: 0
+        taxableAmount:
+          type: number
+          format: float
+          minimum: 0
+        incomeTax:
+          type: number
+          format: float
+          minimum: 0
+        residentTax:
+          type: number
+          format: float
+          minimum: 0
+        otherTaxes:
+          type: number
+          format: float
+          minimum: 0
+        totalDeductions:
+          type: number
+          format: float
+          minimum: 0
+        netPay:
+          type: number
+          format: float
+          minimum: 0
+        yearEndTaxAdjustment:
+          type: number
+          format: float
+          minimum: 0
+        paidTimeOffDaysUsed:
+          type: number
+          format: float
+          minimum: 0
+        paidTimeOffDaysRemaining:
+          type: number
+          format: float
+          minimum: 0
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ErrorResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: true

@@ -1,67 +1,98 @@
-# Quickstart: Salary Recorder
+# Quickstart Guide: Salary Recorder Feature Development
 
-This guide provides the steps to set up and run the Salary Recorder application locally.
+**Date**: 2026-01-05
+**Feature Branch**: `001-salary-recorder`
+**Source**: `plan.md`, `research.md`
 
-## Prerequisites
+This guide outlines the steps to set up the development environment and run the Salary Recorder feature locally.
 
-- Node.js (LTS version)
-- pnpm
-- A running PostgreSQL database
+## 1. Prerequisites
 
-## 1. Installation
+Before you begin, ensure you have the following installed:
 
-Clone the repository and install the dependencies:
+- **Git**: For cloning the repository.
+- **Node.js (LTS)**: JavaScript runtime environment.
+- **pnpm**: Package manager (recommended over npm/yarn).
+- **Docker & Docker Compose**: For running a local PostgreSQL database.
+
+## 2. Get Started
+
+### 2.1. Clone the Repository
+
+First, clone the `net-ledger` repository to your local machine:
 
 ```bash
-git clone <repository-url>
+git clone git@github.com:your-org/net-ledger.git
 cd net-ledger
+```
+
+Then, switch to the feature branch for the Salary Recorder:
+
+```bash
+git checkout 001-salary-recorder
+```
+
+### 2.2. Install Dependencies
+
+Install the project dependencies using pnpm:
+
+```bash
 pnpm install
 ```
 
-## 2. Environment Configuration
+### 2.3. Database Setup (PostgreSQL with Prisma)
 
-Create a `.env.local` file in the root of the project and add the following environment variables:
+The Salary Recorder feature uses PostgreSQL as its database, managed with Prisma ORM.
 
-```
-DATABASE_URL="postgresql://<user>:<password>@<host>:<port>/<database>"
-NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="<generate-a-secret>"
-```
+1.  **Start PostgreSQL with Docker Compose**:
+    Ensure Docker is running on your machine. From the project root, start the database service:
 
-- Replace the `DATABASE_URL` with the connection string for your PostgreSQL database.
-- Generate a secret for `NEXTAUTH_SECRET` (e.g., using `openssl rand -hex 32`).
+    ```bash
+    docker-compose up -d postgres
+    ```
 
-## 3. Database Migration
+    This will start a PostgreSQL container in the background. You might need a `docker/compose.yml` file in the project root with a PostgreSQL service defined.
 
-Manually execute migration SQL scripts.
+2.  **Configure Environment Variables**:
+    Create a `.env` file in the project root based on `.env.example`. Ensure the `DATABASE_URL` matches your Docker Compose setup (e.g., `postgresql://user:password@localhost:5432/netledger`).
 
-## 4. Running the Application
+3.  **Run Prisma Migrations**:
+    Apply the database schema and generate the Prisma client:
 
-Start the development server:
+    ```bash
+    pnpm prisma migrate dev --name init
+    ```
+
+    This command will create the necessary tables in your PostgreSQL database.
+
+### 2.4. Run the Application
+
+Start the Next.js development server:
 
 ```bash
 pnpm dev
 ```
 
-The application will be available at `http://localhost:3000`.
+The application will be accessible at `http://localhost:3000`.
 
-## 5. Running Linters and Formatters
+### 2.5. Run Tests
 
-To check for code quality and formatting issues:
+To run the unit tests:
 
 ```bash
-# Check for linting errors
-pnpm lint
-
-# Fix linting errors
-pnpm lint:fix
-
-# Check formatting
-pnpm format:check
-
-# Fix formatting
-pnpm format
-
-# Check for TypeScript errors
-pnpm type-check
+pnpm test
 ```
+
+To run end-to-end tests (requires the application to be running):
+
+```bash
+pnpm playwright test
+```
+
+## 3. Post-Implementation (Handoffs)
+
+After implementing the feature, ensure to:
+- Create `tasks.md` using the `/speckit.tasks` command.
+- Generate a checklist using the `/speckit.checklist` command for relevant domains (e.g., `ux`, `security`).
+- Update agent context by running `.specify/scripts/bash/update-agent-context.sh`.
+- Prepare a Pull Request following the project's Git Practices outlined in the `constitution.md`.
