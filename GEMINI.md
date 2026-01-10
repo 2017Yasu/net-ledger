@@ -18,7 +18,7 @@ tests/
 
 ## Commands
 
-npm test && npm run lint
+pnpm typecheck && pnpm format
 
 ## Code Style
 
