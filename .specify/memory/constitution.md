@@ -1,21 +1,18 @@
-## <!--
-
+<!--
 ## Sync Impact Report
 
-Version Change: None → 1.0.0
-Added Sections:
-
-- Core Principles
-- Development Workflow
-- Governance
-  Modified Principles: N/A (Initial creation)
-  Templates Requiring Updates:
+Version Change: 1.0.0 → 1.1.0 (Minor: new principle added)
+Added Sections: None
+Modified Principles: Added: VI. Next.js Platform Specifics
+Removed Sections: None
+Templates Requiring Updates:
+- ✅ .specify/memory/constitution.md
 - ✅ .specify/templates/plan-template.md
 - ✅ .specify/templates/spec-template.md
 - ✅ .specify/templates/tasks-template.md
 - ✅ .gemini/commands/speckit.constitution.toml
-  Follow-up TODOs: None
-  -->
+Follow-up TODOs: None
+-->
 
 # net-ledger Constitution
 
@@ -64,6 +61,12 @@ Version control history MUST be clean, understandable, and serve as a reliable p
   - `fix/*`: Branch for fixing trivial bugs.
 - **Pull Requests**: All code changes MUST be submitted via a Pull Request. A PR requires at least one approval from another team member and must pass all automated CI checks (linting, testing, builds) before it can be merged.
 
+### VI. Next.js Platform Specifics
+
+Leverage Next.js features according to their intended purpose and current best practices.
+
+- **Proxy Functionality**: Starting with Next.js 16, Middleware is now called Proxy. Use `src/proxy.ts` for all proxy-related functionality. The functionality remains the same as previous Middleware.
+
 ## Development Workflow
 
 The development process follows a structured workflow to ensure quality and predictability.
@@ -81,4 +84,4 @@ This constitution is the foundational law of the project, ensuring long-term qua
 - **Amendments**: Changes to this constitution require a team discussion and a formal proposal via a Pull Request. The PR must provide a clear rationale for the change and document its potential impact.
 - **Versioning**: The constitution follows Semantic Versioning (Major.Minor.Patch) to track its evolution.
 
-**Version**: 1.0.0 | **Ratified**: 2026-01-04 | **Last Amended**: 2026-01-04
+**Version**: 1.1.0 | **Ratified**: 2026-01-04 | **Last Amended**: 2026-01-10

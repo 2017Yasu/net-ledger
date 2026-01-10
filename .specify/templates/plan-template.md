@@ -29,7 +29,8 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 - **[ ] II. Testing**: Does the plan include tasks for unit, integration, and E2E tests for the feature?
 - **[ ] III. UX Consistency**: Does the plan leverage the existing Material-UI component library for all UI development?
 - **[ ] IV. Performance**: Has the appropriate Next.js rendering strategy (SSR, SSG, ISR) been chosen and justified for new pages?
-- **[ ] V. Git Practices**: Is the work broken down into small, logical PRs suitable for Conventional Commits?
+- [ ] V. Git Practices: Is the work broken down into small, logical PRs suitable for Conventional Commits?
+- [ ] VI. Next.js Platform Specifics: Does the plan account for Next.js 16 Proxy functionality and usage of src/proxy.ts?
 
 ## Project Structure
 

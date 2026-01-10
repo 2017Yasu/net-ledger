@@ -20,6 +20,7 @@ description: "Task list template for feature implementation in a Next.js project
 - **Single project**: `src/`
 - **Tests**: `tests/unit`, `tests/e2e`
 - Paths shown below assume the standard Next.js App Router structure.
+- **Next.js Proxy**: Use `src/proxy.ts` for proxy (formerly middleware) functionality.
 
 <!--
   ============================================================================
