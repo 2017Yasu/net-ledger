@@ -12,7 +12,8 @@ import jwt from "jsonwebtoken";
 
 // JWT_SECRET is set in jest.setup.ts globally
 const TEST_JWT_SECRET = process.env.JWT_SECRET || "fallback_secret";
-const TEST_REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || "fallback_refresh_secret";
+const TEST_REFRESH_TOKEN_SECRET =
+  process.env.REFRESH_TOKEN_SECRET || "fallback_refresh_secret";
 
 describe("Auth Utilities", () => {
   describe("hashPassword", () => {
@@ -118,7 +119,7 @@ describe("Auth Utilities", () => {
 
     it("should throw an error for an expired refresh token", () => {
       const userId = "testUserId";
-      const pastTime = Math.floor(Date.now() / 1000) - (7 * 24 * 3600); // 7 days ago
+      const pastTime = Math.floor(Date.now() / 1000) - 7 * 24 * 3600; // 7 days ago
       const trulyExpiredRefreshToken = jwt.sign(
         { userId, exp: pastTime },
         TEST_REFRESH_TOKEN_SECRET,

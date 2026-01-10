@@ -3,6 +3,7 @@ import {
   verifyToken,
   verifyRefreshToken,
   generateAccessToken,
+  generateRefreshToken,
 } from "@/lib/auth";
 import {
   getRefreshToken,
@@ -27,9 +28,10 @@ export async function middleware(request: NextRequest) {
         context: "Middleware",
       });
       return NextResponse.next();
-    } catch (error: any) {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       logger.warn(
-        `Invalid or expired access token for path: ${request.nextUrl.pathname}: ${error.message}`,
+        `Invalid or expired access token for path: ${request.nextUrl.pathname}: ${message}`,
         { context: "Middleware" },
       );
       // Access token invalid/expired, proceed to check refresh token
@@ -91,10 +93,11 @@ export async function middleware(request: NextRequest) {
           { context: "Middleware", userId: decodedRefreshToken?.userId },
         );
       }
-    } catch (error: any) {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       logger.error(
-        `Refresh token validation failed in middleware for path: ${request.nextUrl.pathname}: ${error.message}`,
-        { context: "Middleware", error: error.message },
+        `Refresh token validation failed in middleware for path: ${request.nextUrl.pathname}: ${message}`,
+        { context: "Middleware", error: message },
       );
       // Fall through to redirect to login
     }

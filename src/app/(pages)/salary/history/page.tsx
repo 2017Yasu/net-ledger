@@ -16,7 +16,7 @@ export default function SalaryHistoryPage() {
 
   useEffect(() => {
     async function fetchSalaryRecords() {
-      if (!token) {
+      if (!accessToken) {
         setLoading(false);
         setError("Authentication token not found. Please log in.");
         return;
@@ -25,7 +25,7 @@ export default function SalaryHistoryPage() {
       try {
         const response = await fetch("/api/salary", {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${accessToken}`,
           },
         });
 
@@ -53,10 +53,10 @@ export default function SalaryHistoryPage() {
       setLoading(false);
       setError("Please log in to view your salary history.");
     }
-  }, [token, user]);
+  }, [accessToken, user]);
 
   const handleDelete = async (recordId: string) => {
-    if (!token) {
+    if (!accessToken) {
       setError(
         "Authentication token not found. Please log in to delete records.",
       );
@@ -67,7 +67,7 @@ export default function SalaryHistoryPage() {
         const response = await fetch(`/api/salary/${recordId}`, {
           method: "DELETE",
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${accessToken}`,
           },
         });
 

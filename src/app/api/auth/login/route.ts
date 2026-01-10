@@ -7,19 +7,22 @@ import {
 } from "@/lib/auth";
 import { createRefreshToken } from "@/lib/refresh-token";
 import { logger } from "@/lib/logger";
-import { authRateLimiter } from "@/lib/rate-limiter"; // Import the rate limiter
+import { authRateLimiter, AuthRateLimitOptions } from "@/lib/rate-limiter"; // Import the rate limiter
 
 export async function POST(request: NextRequest) {
   // Changed Request to NextRequest
   // Apply rate limiting
-    const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "127.0.0.1";
-  const { limited, requestsRemaining, retryAfter } =
-    await authRateLimiter.check(5, ip); // 5 requests per minute
-
-  if (limited) {
+  const ip =
+    request.headers.get("x-forwarded-for") ||
+    request.headers.get("x-real-ip") ||
+    "127.0.0.1";
+  try {
+    authRateLimiter.checkNext(request, 5); // 5 requests per minute
+  } catch {
     logger.warn(`Rate limit exceeded for login attempt from IP: ${ip}`, {
       context: "Auth/RateLimit",
     });
+    const retryAfter = AuthRateLimitOptions.interval / 1000;
     return NextResponse.json(
       {
         message: `Too many requests. Please try again after ${retryAfter} seconds.`,
@@ -103,10 +106,11 @@ export async function POST(request: NextRequest) {
       userId: user.id,
     });
     return response;
-  } catch (error: any) {
-    logger.error(`Login error: ${error.message}`, {
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    logger.error(`Login error: ${message}`, {
       context: "Auth",
-      error: error.message,
+      error: message,
     });
     return NextResponse.json(
       { message: "Something went wrong" },

@@ -30,12 +30,12 @@ export async function POST(request: NextRequest) {
     );
     response.cookies.delete("refreshToken"); // Clear the refresh token cookie
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(
-      `Logout from all devices error for userId: ${getUserIdFromRequest(request) || "unknown"}: ${error.message}`,
+      `Logout from all devices error for userId: ${getUserIdFromRequest(request) || "unknown"}: ${error instanceof Error ? error.message : "An unknown error occurred"}`,
       {
         context: "Auth/LogoutAll",
-        error: error.message,
+        error: error instanceof Error ? error.message : "Unknown error type",
         userId: getUserIdFromRequest(request) || "unknown",
       },
     );

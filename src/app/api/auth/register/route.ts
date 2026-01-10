@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { hashPassword, generateAccessToken, generateRefreshToken } from "@/lib/auth"; // Updated imports
+import {
+  hashPassword,
+  generateAccessToken,
+  generateRefreshToken,
+} from "@/lib/auth"; // Updated imports
 import { createRefreshToken } from "@/lib/refresh-token"; // Import createRefreshToken
 import { logger } from "@/lib/logger"; // Import logger for consistency
 
@@ -9,7 +13,9 @@ export async function POST(request: Request) {
     const { username, password } = await request.json();
 
     if (!username || !password) {
-      logger.warn("Registration attempt with missing username or password", { context: "Auth/Register" });
+      logger.warn("Registration attempt with missing username or password", {
+        context: "Auth/Register",
+      });
       return NextResponse.json(
         { message: "Username and password are required" },
         { status: 400 },
@@ -21,7 +27,9 @@ export async function POST(request: Request) {
     });
 
     if (existingUser) {
-      logger.warn(`Registration attempt with existing username: ${username}`, { context: "Auth/Register" });
+      logger.warn(`Registration attempt with existing username: ${username}`, {
+        context: "Auth/Register",
+      });
       return NextResponse.json(
         { message: "Username already taken" },
         { status: 409 },
@@ -41,7 +49,9 @@ export async function POST(request: Request) {
     const refreshToken = generateRefreshToken(user.id);
 
     // Calculate refresh token expiration (e.g., 7 days from now)
-    const refreshTokenExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days in milliseconds
+    const refreshTokenExpiresAt = new Date(
+      Date.now() + 7 * 24 * 60 * 60 * 1000,
+    ); // 7 days in milliseconds
 
     // Store refresh token in the database
     await createRefreshToken(user.id, refreshToken, refreshTokenExpiresAt);
@@ -68,10 +78,19 @@ export async function POST(request: Request) {
       maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
     });
 
-    logger.info(`User registered successfully: ${user.username}`, { context: "Auth/Register", userId: user.id });
+    logger.info(`User registered successfully: ${user.username}`, {
+      context: "Auth/Register",
+      userId: user.id,
+    });
     return response;
-  } catch (error: any) {
-    logger.error(`Registration error: ${error.message}`, { context: "Auth/Register", error: error.message });
+  } catch (error: unknown) {
+    logger.error(
+      `Registration error: ${error instanceof Error ? error.message : "An unknown error occurred"}`,
+      {
+        context: "Auth/Register",
+        error: error instanceof Error ? error.message : "Unknown error type",
+      },
+    );
     return NextResponse.json(
       { message: "Something went wrong" },
       { status: 500 },

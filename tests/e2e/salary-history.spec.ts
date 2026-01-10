@@ -28,7 +28,7 @@ test.describe("Salary History and Detail Flow", () => {
       },
     });
     testUserId = user.id;
-    authToken = generateToken(testUserId);
+    authToken = generateAccessToken(testUserId);
 
     // Create some initial salary records for the user via direct Prisma access
     const now = new Date();

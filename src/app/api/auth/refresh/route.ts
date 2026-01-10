@@ -11,18 +11,21 @@ import {
 } from "@/lib/refresh-token";
 import prisma from "@/lib/prisma";
 import { logger } from "@/lib/logger";
-import { authRateLimiter } from "@/lib/rate-limiter"; // Import the rate limiter
+import { authRateLimiter, AuthRateLimitOptions } from "@/lib/rate-limiter"; // Import the rate limiter
 
 export async function POST(request: NextRequest) {
   // Apply rate limiting
-    const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "127.0.0.1";
-  const { limited, requestsRemaining, retryAfter } =
-    await authRateLimiter.check(5, ip); // 5 requests per minute
-
-  if (limited) {
-    logger.warn(`Rate limit exceeded for refresh attempt from IP: ${ip}`, {
-      context: "Auth/Refresh/RateLimit",
+  const ip =
+    request.headers.get("x-forwarded-for") ||
+    request.headers.get("x-real-ip") ||
+    "127.0.0.1";
+  try {
+    authRateLimiter.checkNext(request, 5); // 5 requests per minute
+  } catch {
+    logger.warn(`Rate limit exceeded for login attempt from IP: ${ip}`, {
+      context: "Auth/RateLimit",
     });
+    const retryAfter = AuthRateLimitOptions.interval / 1000;
     return NextResponse.json(
       {
         message: `Too many requests. Please try again after ${retryAfter} seconds.`,
@@ -47,9 +50,10 @@ export async function POST(request: NextRequest) {
     let decodedRefreshToken;
     try {
       decodedRefreshToken = verifyRefreshToken(refreshTokenCookie);
-    } catch (error: any) {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       logger.warn(
-        `Invalid refresh token signature for token: ${refreshTokenCookie} - ${error.message}`,
+        `Invalid refresh token signature for token: ${refreshTokenCookie} - ${message}`,
         { context: "Auth/Refresh" },
       );
       return NextResponse.json(
@@ -125,10 +129,11 @@ export async function POST(request: NextRequest) {
       { context: "Auth/Refresh", userId: decodedRefreshToken.userId },
     );
     return response;
-  } catch (error: any) {
-    logger.error(`Token refresh error: ${error.message}`, {
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    logger.error(`Token refresh error: ${message}`, {
       context: "Auth/Refresh",
-      error: error.message,
+      error: message,
     });
     return NextResponse.json(
       { message: "Failed to refresh token" },

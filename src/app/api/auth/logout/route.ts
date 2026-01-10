@@ -20,9 +20,9 @@ export async function POST(request: NextRequest) {
     let decodedRefreshToken;
     try {
       decodedRefreshToken = verifyRefreshToken(refreshTokenCookie);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.warn(
-        `Logout attempt with invalid refresh token signature: ${error.message}`,
+        `Logout attempt with invalid refresh token signature: ${error instanceof Error ? error.message : "An unknown error occurred"}`,
         { context: "Auth/Logout" },
       );
       const response = NextResponse.json(
@@ -57,11 +57,14 @@ export async function POST(request: NextRequest) {
     );
     response.cookies.delete("refreshToken");
     return response;
-  } catch (error: any) {
-    logger.error(`Logout error: ${error.message}`, {
-      context: "Auth/Logout",
-      error: error.message,
-    });
+  } catch (error: unknown) {
+    logger.error(
+      `Logout error: ${error instanceof Error ? error.message : "An unknown error occurred"}`,
+      {
+        context: "Auth/Logout",
+        error: error instanceof Error ? error.message : "Unknown error type",
+      },
+    );
     return NextResponse.json(
       { message: "Something went wrong during logout" },
       { status: 500 },

@@ -4,17 +4,18 @@ import { getUserIdFromRequest } from "@/lib/server-auth";
 import { Prisma } from "@prisma/client";
 import { validateSalaryRecordData } from "@/lib/validation"; // Import the new validation utility
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { recordId: string } },
-) {
+interface RouteContext {
+  params: { recordId: string };
+}
+
+export async function GET(request: NextRequest, context: RouteContext) {
   try {
     const userId = getUserIdFromRequest(request);
     if (!userId) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { recordId } = params;
+    const { recordId } = context.params;
     if (!recordId) {
       return NextResponse.json(
         { message: "Record ID is required" },
@@ -49,17 +50,14 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { recordId: string } },
-) {
+export async function PUT(request: NextRequest, context: RouteContext) {
   try {
     const userId = getUserIdFromRequest(request);
     if (!userId) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { recordId } = params;
+    const { recordId } = context.params;
     if (!recordId) {
       return NextResponse.json(
         { message: "Record ID is required" },
@@ -200,17 +198,14 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { recordId: string } },
-) {
+export async function DELETE(request: NextRequest, context: RouteContext) {
   try {
     const userId = getUserIdFromRequest(request);
     if (!userId) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { recordId } = params;
+    const { recordId } = context.params;
     if (!recordId) {
       return NextResponse.json(
         { message: "Record ID is required" },

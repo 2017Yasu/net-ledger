@@ -39,7 +39,7 @@ jest.mock("@/lib/prisma", () => ({
 process.env.JWT_SECRET = "test_secret_for_salary_integration";
 
 const mockUserId = "user-test-id";
-const mockToken = generateToken(mockUserId);
+const mockToken = generateAccessToken(mockUserId);
 const mockUser = {
   id: mockUserId,
   username: "testuser",

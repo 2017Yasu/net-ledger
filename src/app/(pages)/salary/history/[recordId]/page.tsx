@@ -30,7 +30,7 @@ export default function SalaryDetailPage({ params }: SalaryDetailPageProps) {
 
   useEffect(() => {
     async function fetchSalaryRecord() {
-      if (!token) {
+      if (!accessToken) {
         setLoading(false);
         setError("Authentication token not found. Please log in.");
         return;
@@ -44,7 +44,7 @@ export default function SalaryDetailPage({ params }: SalaryDetailPageProps) {
       try {
         const response = await fetch(`/api/salary/${recordId}`, {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${accessToken}`,
           },
         });
 
@@ -71,10 +71,10 @@ export default function SalaryDetailPage({ params }: SalaryDetailPageProps) {
       setLoading(false);
       setError("Please log in to view salary details.");
     }
-  }, [token, user, recordId]);
+  }, [accessToken, user, recordId]);
 
   const handleUpdate = async (formData: Partial<SalaryRecord>) => {
-    if (!token) {
+    if (!accessToken) {
       setError("You must be logged in to update salary.");
       return;
     }
@@ -91,7 +91,7 @@ export default function SalaryDetailPage({ params }: SalaryDetailPageProps) {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(formData),
       });

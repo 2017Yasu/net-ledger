@@ -15,7 +15,7 @@ export default function RecordSalaryPage() {
   const [success, setSuccess] = useState<string | null>(null);
 
   const handleSubmit = async (formData: Partial<SalaryRecord>) => {
-    if (!token) {
+    if (!accessToken) {
       setError("You must be logged in to record salary.");
       return;
     }
@@ -29,7 +29,7 @@ export default function RecordSalaryPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(formData),
       });

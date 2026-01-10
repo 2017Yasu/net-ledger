@@ -43,7 +43,7 @@ export function validateSalaryRecordData(data: Partial<SalaryRecord>) {
     if (value !== undefined && value !== null && !(value instanceof Date)) {
       const decimalValue = new Prisma.Decimal(value);
       if (decimalValue.lessThan(0)) {
-        errors.push(`${field} cannot be negative.`);
+        errors.push(`${String(field)} cannot be negative.`);
       }
     }
   });
@@ -61,7 +61,7 @@ export function validateSalaryRecordData(data: Partial<SalaryRecord>) {
   floatFields.forEach((field) => {
     const value = data[field];
     if (value !== undefined && value !== null && (value as number) < 0) {
-      errors.push(`${field} cannot be negative.`);
+      errors.push(`${String(field)} cannot be negative.`);
     }
   });
 

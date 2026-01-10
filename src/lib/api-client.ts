@@ -1,12 +1,21 @@
-import axios, { AxiosInstance, AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
-import type { AuthContextType } from "./auth-context"; // Import AuthContextType as a type
+import axios, {
+  AxiosInstance,
+  AxiosError,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+} from "axios";
+import { AuthContextType } from "./auth-context"; // Import AuthContextType as a type
+
+interface ApiErrorResponse {
+  message: string;
+}
 
 // This instance will be configured with base URL and interceptors
-let api: AxiosInstance;
+let api: AxiosInstance | undefined = undefined; // Initialize with undefined or a default instance
 let isRefreshing = false;
 let failedQueue: {
   resolve: (value?: unknown) => void;
-  reject: (reason?: any) => void;
+  reject: (reason?: unknown) => void;
 }[] = [];
 
 // New: Error feedback callback
@@ -26,19 +35,20 @@ const processQueue = (
   failedQueue = [];
 };
 
-export const setupApiClient = (auth: AuthContextType) => {
-  api = axios.create({
-    baseURL: "/api", // Assuming your API routes start with /api
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const setupApiClient = (auth: AuthContextType): AxiosInstance => {
+  if (!api) {
+    api = axios.create({
+      baseURL: "/api", // Assuming your API routes start with /api
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  }
 
   api.interceptors.request.use(
-    (config: AxiosRequestConfig) => {
+    (config: InternalAxiosRequestConfig) => {
       // Add access token to requests if available
       if (auth.accessToken) {
-        config.headers = config.headers || {};
         config.headers.Authorization = `Bearer ${auth.accessToken}`;
       }
       return config;
@@ -51,8 +61,10 @@ export const setupApiClient = (auth: AuthContextType) => {
 
   api.interceptors.response.use(
     (response: AxiosResponse) => response,
-    async (error: AxiosError) => {
-      const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
+    async (error: AxiosError<ApiErrorResponse>) => {
+      const originalRequest = error.config as InternalAxiosRequestConfig & {
+        _retry?: boolean;
+      };
 
       // Only proceed if it's a 401 error and not already refreshing
       if (
@@ -67,10 +79,9 @@ export const setupApiClient = (auth: AuthContextType) => {
           })
             .then((token) => {
               if (token) {
-                originalRequest.headers = originalRequest.headers || {};
                 originalRequest.headers.Authorization = `Bearer ${token}`;
               }
-              return api(originalRequest);
+              return api!(originalRequest);
             })
             .catch((err) => {
               errorFeedbackCallback?.(
@@ -97,16 +108,18 @@ export const setupApiClient = (auth: AuthContextType) => {
           processQueue(null, newAccessToken);
 
           // Retry the original request with the new access token
-          originalRequest.headers = originalRequest.headers || {};
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-          return api(originalRequest);
-        } catch (refreshError: any) {
+          return api!(originalRequest);
+        } catch (refreshError: unknown) {
           // If refresh fails, clear auth state and redirect to login
-          processQueue(refreshError);
+          processQueue(
+            refreshError instanceof AxiosError ? refreshError : null,
+          );
           auth.logout(); // auth.logout already handles redirection
           errorFeedbackCallback?.(
-            refreshError.response?.data?.message ||
-              refreshError.message ||
+            (refreshError instanceof AxiosError &&
+              refreshError.response?.data?.message) ||
+              (refreshError instanceof Error && refreshError.message) ||
               "Session expired. Please log in again.",
           );
           return Promise.reject(refreshError);
@@ -132,5 +145,3 @@ export const setErrorFeedbackCallback = (
 ) => {
   errorFeedbackCallback = callback;
 };
-
-export default api; // Export the instance for direct use after setup
