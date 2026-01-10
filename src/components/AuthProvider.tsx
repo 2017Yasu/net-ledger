@@ -1,25 +1,10 @@
 "use client";
 
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from "react";
-import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
 import { verifyToken } from "@/lib/auth";
-
-interface AuthContextType {
-  user: { id: string; username: string } | null;
-  token: string | null;
-  login: (token: string, user: { id: string; username: string }) => void;
-  logout: () => void;
-  loading: boolean;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+import { AuthContext } from "@/lib/auth-context";
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
+import { ReactNode, useEffect, useState } from "react";
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<{ id: string; username: string } | null>(
@@ -70,12 +55,4 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       {children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
 };
