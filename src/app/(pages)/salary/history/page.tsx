@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Container, Typography, Box, Alert, Button } from "@mui/material";
-import SalaryHistoryList from "@/app/(components)/ui/SalaryHistoryList";
+import SalaryHistoryList from "@/components/SalaryHistoryList";
 import { useAuth } from "@/lib/auth-context";
 import { SalaryRecord } from "@prisma/client";
 import { useRouter } from "next/navigation";

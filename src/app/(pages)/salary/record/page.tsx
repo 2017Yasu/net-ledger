@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import SalaryForm from "@/app/(components)/ui/SalaryForm";
+import SalaryForm from "@/components/SalaryForm";
 import { useAuth } from "@/lib/auth-context";
 import { Alert, Container, Box, Button } from "@mui/material";
 import { SalaryRecord } from "@prisma/client";

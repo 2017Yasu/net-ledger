@@ -11,8 +11,8 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
-import SalaryDetailView from "@/app/(components)/ui/SalaryDetailView";
-import SalaryForm from "@/app/(components)/ui/SalaryForm";
+import SalaryDetailView from "@/components/SalaryDetailView";
+import SalaryForm from "@/components/SalaryForm";
 import { SalaryRecord } from "@prisma/client";
 
 interface SalaryDetailPageProps {

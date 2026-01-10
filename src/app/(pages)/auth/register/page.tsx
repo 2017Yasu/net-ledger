@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import RegistrationForm from "@/app/(components)/ui/RegistrationForm";
+import RegistrationForm from "@/components/RegistrationForm";
 
 export default function RegisterPage() {
   const router = useRouter();
