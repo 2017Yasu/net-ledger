@@ -1,36 +1,40 @@
-'use client'
+"use client";
 
-import React, { useState } from 'react'
-import { TextField, Button, Box, Typography, Container } from '@mui/material'
+import React, { useState } from "react";
+import { TextField, Button, Box, Typography, Container } from "@mui/material";
 
 interface RegistrationFormProps {
-  onSubmit: (credentials: { username: string; password: string }) => void
-  loading?: boolean
-  error?: string | null
+  onSubmit: (credentials: { username: string; password: string }) => void;
+  loading?: boolean;
+  error?: string | null;
 }
 
-const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmit, loading, error }) => {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
+const RegistrationForm: React.FC<RegistrationFormProps> = ({
+  onSubmit,
+  loading,
+  error,
+}) => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault()
+    event.preventDefault();
     if (password !== confirmPassword) {
-      alert("Passwords don't match") // Basic client-side feedback
-      return
+      alert("Passwords don't match"); // Basic client-side feedback
+      return;
     }
-    onSubmit({ username, password })
-  }
+    onSubmit({ username, password });
+  };
 
   return (
     <Container component="main" maxWidth="xs">
       <Box
         sx={{
           marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
         }}
       >
         <Typography component="h1" variant="h5">
@@ -85,12 +89,12 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmit, loading, 
             sx={{ mt: 3, mb: 2 }}
             disabled={loading}
           >
-            {loading ? 'Registering...' : 'Register'}
+            {loading ? "Registering..." : "Register"}
           </Button>
         </Box>
       </Box>
     </Container>
-  )
-}
+  );
+};
 
-export default RegistrationForm
+export default RegistrationForm;

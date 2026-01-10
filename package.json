@@ -7,6 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "format:prettier": "prettier --write .",
+    "lint:fix": "eslint --fix .",
+    "format": "npm run format:prettier && npm run lint:fix",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "check:types": "tsc --noEmit",
     "test": "jest"
   },
   "dependencies": {

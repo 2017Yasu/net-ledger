@@ -21,14 +21,14 @@ description: "Task list template for feature implementation in a Next.js project
 - **Tests**: `tests/unit`, `tests/e2e`
 - Paths shown below assume the standard Next.js App Router structure.
 
-<!-- 
+<!--
   ============================================================================
   IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
+
   The /speckit.tasks command MUST replace these with actual tasks based on:
   - User stories from spec.md (with their priorities P1, P2...)
   - The technical design from plan.md
-  
+
   DO NOT keep these sample tasks in the generated tasks.md file.
   ============================================================================
 -->

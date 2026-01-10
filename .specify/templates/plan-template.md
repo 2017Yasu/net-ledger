@@ -23,7 +23,7 @@
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
 - **[ ] I. Code Quality**: Does the plan account for strict TypeScript, ESLint, and Prettier standards?
 - **[ ] II. Testing**: Does the plan include tasks for unit, integration, and E2E tests for the feature?
@@ -72,7 +72,7 @@ tests/
 
 > **Fill ONLY if Constitution Check has violations that must be justified**
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., Deviating from Material-UI] | [e.g., A custom chart library is required] | [e.g., Material-UI charts lack feature X] |
-| [e.g., Disabling a lint rule] | [e.g., A third-party library has conflicts] | [e.g., Fixing the library is out of scope] |
+| Violation                          | Why Needed                                  | Simpler Alternative Rejected Because       |
+| ---------------------------------- | ------------------------------------------- | ------------------------------------------ |
+| [e.g., Deviating from Material-UI] | [e.g., A custom chart library is required]  | [e.g., Material-UI charts lack feature X]  |
+| [e.g., Disabling a lint rule]      | [e.g., A third-party library has conflicts] | [e.g., Fixing the library is out of scope] |

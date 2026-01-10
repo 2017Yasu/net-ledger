@@ -1,1 +1,1 @@
-export { Decimal } from '../../client'
+export { Decimal } from "../../client";

@@ -23,7 +23,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<{ id: string; username: string } | null>(
-    null
+    null,
   );
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = (
     newToken: string,
-    newUser: { id: string; username: string }
+    newUser: { id: string; username: string },
   ) => {
     Cookies.set("token", newToken, { expires: 7 }); // Store token in cookies, expires in 7 days
     setToken(newToken);

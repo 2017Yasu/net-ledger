@@ -23,13 +23,13 @@ Build an application that allows users to securely record and track their monthl
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-- [X] I. Code Quality: Does the plan account for strict TypeScript, ESLint, and Prettier standards?
-- [X] II. Testing: Does the plan include tasks for unit, integration, and E2E tests for the feature?
-- [X] III. UX Consistency: Does the plan leverage the existing Material-UI component library for all UI development?
-- [X] IV. Performance: Has the appropriate Next.js rendering strategy (SSR, SSG, ISR) been chosen and justified for new pages? (Hybrid SSR/CSR strategy for performance and interactivity.)
-- [X] V. Git Practices: Is the work broken down into small, logical PRs suitable for Conventional Commits?
+- [x] I. Code Quality: Does the plan account for strict TypeScript, ESLint, and Prettier standards?
+- [x] II. Testing: Does the plan include tasks for unit, integration, and E2E tests for the feature?
+- [x] III. UX Consistency: Does the plan leverage the existing Material-UI component library for all UI development?
+- [x] IV. Performance: Has the appropriate Next.js rendering strategy (SSR, SSG, ISR) been chosen and justified for new pages? (Hybrid SSR/CSR strategy for performance and interactivity.)
+- [x] V. Git Practices: Is the work broken down into small, logical PRs suitable for Conventional Commits?
 
 ## Project Structure
 
@@ -72,7 +72,7 @@ tests/
 
 > **Fill ONLY if Constitution Check has violations that must be justified**
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., Deviating from Material-UI] | [e.g., A custom chart library is required] | [e.g., Material-UI charts lack feature X] |
-| [e.g., Disabling a lint rule] | [e.g., A third-party library has conflicts] | [e.g., Fixing the library is out of scope] |
+| Violation                          | Why Needed                                  | Simpler Alternative Rejected Because       |
+| ---------------------------------- | ------------------------------------------- | ------------------------------------------ |
+| [e.g., Deviating from Material-UI] | [e.g., A custom chart library is required]  | [e.g., Material-UI charts lack feature X]  |
+| [e.g., Disabling a lint rule]      | [e.g., A third-party library has conflicts] | [e.g., Fixing the library is out of scope] |

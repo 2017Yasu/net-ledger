@@ -92,6 +92,7 @@ pnpm playwright test
 ## 3. Post-Implementation (Handoffs)
 
 After implementing the feature, ensure to:
+
 - Create `tasks.md` using the `/speckit.tasks` command.
 - Generate a checklist using the `/speckit.checklist` command for relevant domains (e.g., `ux`, `security`).
 - Update agent context by running `.specify/scripts/bash/update-agent-context.sh`.

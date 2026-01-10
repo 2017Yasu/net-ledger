@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from "react";
 import {
   TextField,
   Button,
@@ -10,15 +10,15 @@ import {
   Grid,
   CircularProgress,
   Alert,
-} from '@mui/material'
-import { SalaryRecord } from '@prisma/client'
+} from "@mui/material";
+import { SalaryRecord } from "@prisma/client";
 
 interface SalaryFormProps {
-  initialData?: Partial<SalaryRecord> | null
-  onSubmit: (data: Partial<SalaryRecord>) => void
-  loading?: boolean
-  error?: string | null
-  isEdit?: boolean
+  initialData?: Partial<SalaryRecord> | null;
+  onSubmit: (data: Partial<SalaryRecord>) => void;
+  loading?: boolean;
+  error?: string | null;
+  isEdit?: boolean;
 }
 
 const SalaryForm: React.FC<SalaryFormProps> = ({
@@ -35,77 +35,75 @@ const SalaryForm: React.FC<SalaryFormProps> = ({
     grossEarnings: 0,
     netPay: 0,
     ...initialData,
-  })
-  const [formErrors, setFormErrors] = useState<Record<string, string | undefined>>({})
-
-  useEffect(() => {
-    if (initialData) {
-      setFormData((prevData) => ({ ...prevData, ...initialData }))
-    }
-  }, [initialData])
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value === '' ? null : value }))
-    // Clear error for this field on change
-    setFormErrors((prev) => ({ ...prev, [name]: undefined }))
-  }
+  });
+  const [formErrors, setFormErrors] = useState<
+    Record<string, string | undefined>
+  >({});
 
   const handleNumericChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     // Allow empty string for optional fields, otherwise convert to number
-    const numericValue = value === '' ? null : parseFloat(value)
-    setFormData((prev) => ({ ...prev, [name]: numericValue }))
-    setFormErrors((prev) => ({ ...prev, [name]: undefined }))
-  }
+    const numericValue = value === "" ? null : parseFloat(value);
+    setFormData((prev) => ({ ...prev, [name]: numericValue }));
+    setFormErrors((prev) => ({ ...prev, [name]: undefined }));
+  };
 
   const validate = () => {
-    const errors: Record<string, string> = {}
-    if (formData.month === undefined || formData.month < 1 || formData.month > 12) {
-      errors.month = 'Month must be between 1 and 12'
+    const errors: Record<string, string> = {};
+    if (
+      formData.month === undefined ||
+      formData.month < 1 ||
+      formData.month > 12
+    ) {
+      errors.month = "Month must be between 1 and 12";
     }
-    if (formData.year === undefined || formData.year < 1900 || formData.year > 2100) {
-        errors.year = 'Year must be a valid year (e.g., 1900-2100)'
+    if (
+      formData.year === undefined ||
+      formData.year < 1900 ||
+      formData.year > 2100
+    ) {
+      errors.year = "Year must be a valid year (e.g., 1900-2100)";
     }
     if (formData.baseSalary === undefined || formData.baseSalary < 0) {
-      errors.baseSalary = 'Base Salary is required and cannot be negative'
+      errors.baseSalary = "Base Salary is required and cannot be negative";
     }
     if (formData.grossEarnings === undefined || formData.grossEarnings < 0) {
-      errors.grossEarnings = 'Gross Earnings is required and cannot be negative'
+      errors.grossEarnings =
+        "Gross Earnings is required and cannot be negative";
     }
     if (formData.netPay === undefined || formData.netPay < 0) {
-      errors.netPay = 'Net Pay is required and cannot be negative'
+      errors.netPay = "Net Pay is required and cannot be negative";
     }
     // Add validation for other fields as needed based on data-model.md
-    setFormErrors(errors)
-    return Object.keys(errors).length === 0
-  }
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault()
+    event.preventDefault();
     if (validate()) {
       // Convert Decimal values from number to string for Prisma, or handle in API
-      const dataToSend = { ...formData }
+      const dataToSend = { ...formData };
       // Assuming API expects numbers and will handle Decimal conversion
-      onSubmit(dataToSend)
+      onSubmit(dataToSend);
     }
-  }
+  };
 
   return (
     <Container component="main" maxWidth="md">
       <Box
         sx={{
           marginTop: 4,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
         }}
       >
         <Typography component="h1" variant="h5">
-          {isEdit ? 'Edit Salary Record' : 'Create Salary Record'}
+          {isEdit ? "Edit Salary Record" : "Create Salary Record"}
         </Typography>
         {error && (
-          <Alert severity="error" sx={{ mt: 2, width: '100%' }}>
+          <Alert severity="error" sx={{ mt: 2, width: "100%" }}>
             {error}
           </Alert>
         )}
@@ -119,7 +117,7 @@ const SalaryForm: React.FC<SalaryFormProps> = ({
                 type="number"
                 required
                 fullWidth
-                value={formData.month ?? ''}
+                value={formData.month ?? ""}
                 onChange={handleNumericChange}
                 error={!!formErrors.month}
                 helperText={formErrors.month}
@@ -133,7 +131,7 @@ const SalaryForm: React.FC<SalaryFormProps> = ({
                 type="number"
                 required
                 fullWidth
-                value={formData.year ?? ''}
+                value={formData.year ?? ""}
                 onChange={handleNumericChange}
                 error={!!formErrors.year}
                 helperText={formErrors.year}
@@ -148,7 +146,7 @@ const SalaryForm: React.FC<SalaryFormProps> = ({
                 label="Attendance Days"
                 type="number"
                 fullWidth
-                value={formData.attendanceDays ?? ''}
+                value={formData.attendanceDays ?? ""}
                 onChange={handleNumericChange}
                 inputProps={{ min: 0 }}
               />
@@ -159,7 +157,7 @@ const SalaryForm: React.FC<SalaryFormProps> = ({
                 label="Days Worked"
                 type="number"
                 fullWidth
-                value={formData.daysWorked ?? ''}
+                value={formData.daysWorked ?? ""}
                 onChange={handleNumericChange}
                 inputProps={{ min: 0 }}
               />
@@ -170,7 +168,7 @@ const SalaryForm: React.FC<SalaryFormProps> = ({
                 label="Working Hours"
                 type="number"
                 fullWidth
-                value={formData.workingHours ?? ''}
+                value={formData.workingHours ?? ""}
                 onChange={handleNumericChange}
                 inputProps={{ min: 0 }}
               />
@@ -189,7 +187,7 @@ const SalaryForm: React.FC<SalaryFormProps> = ({
                 type="number"
                 required
                 fullWidth
-                value={formData.baseSalary ?? ''}
+                value={formData.baseSalary ?? ""}
                 onChange={handleNumericChange}
                 error={!!formErrors.baseSalary}
                 helperText={formErrors.baseSalary}
@@ -202,7 +200,7 @@ const SalaryForm: React.FC<SalaryFormProps> = ({
                 label="Overtime Allowance"
                 type="number"
                 fullWidth
-                value={formData.overtimeAllowance ?? ''}
+                value={formData.overtimeAllowance ?? ""}
                 onChange={handleNumericChange}
                 inputProps={{ min: 0, step: "0.01" }}
               />
@@ -213,7 +211,7 @@ const SalaryForm: React.FC<SalaryFormProps> = ({
                 label="Commuting Allowance"
                 type="number"
                 fullWidth
-                value={formData.commutingAllowance ?? ''}
+                value={formData.commutingAllowance ?? ""}
                 onChange={handleNumericChange}
                 inputProps={{ min: 0, step: "0.01" }}
               />
@@ -224,7 +222,7 @@ const SalaryForm: React.FC<SalaryFormProps> = ({
                 label="Other Allowances"
                 type="number"
                 fullWidth
-                value={formData.otherAllowances ?? ''}
+                value={formData.otherAllowances ?? ""}
                 onChange={handleNumericChange}
                 inputProps={{ min: 0, step: "0.01" }}
               />
@@ -236,7 +234,7 @@ const SalaryForm: React.FC<SalaryFormProps> = ({
                 type="number"
                 required
                 fullWidth
-                value={formData.grossEarnings ?? ''}
+                value={formData.grossEarnings ?? ""}
                 onChange={handleNumericChange}
                 error={!!formErrors.grossEarnings}
                 helperText={formErrors.grossEarnings}
@@ -256,7 +254,7 @@ const SalaryForm: React.FC<SalaryFormProps> = ({
                 label="Total Social Insurance Contributions"
                 type="number"
                 fullWidth
-                value={formData.socialInsuranceContributions ?? ''}
+                value={formData.socialInsuranceContributions ?? ""}
                 onChange={handleNumericChange}
                 inputProps={{ min: 0, step: "0.01" }}
               />
@@ -267,7 +265,7 @@ const SalaryForm: React.FC<SalaryFormProps> = ({
                 label="Taxable Amount"
                 type="number"
                 fullWidth
-                value={formData.taxableAmount ?? ''}
+                value={formData.taxableAmount ?? ""}
                 onChange={handleNumericChange}
                 inputProps={{ min: 0, step: "0.01" }}
               />
@@ -278,7 +276,7 @@ const SalaryForm: React.FC<SalaryFormProps> = ({
                 label="Income Tax"
                 type="number"
                 fullWidth
-                value={formData.incomeTax ?? ''}
+                value={formData.incomeTax ?? ""}
                 onChange={handleNumericChange}
                 inputProps={{ min: 0, step: "0.01" }}
               />
@@ -289,7 +287,7 @@ const SalaryForm: React.FC<SalaryFormProps> = ({
                 label="Resident Tax"
                 type="number"
                 fullWidth
-                value={formData.residentTax ?? ''}
+                value={formData.residentTax ?? ""}
                 onChange={handleNumericChange}
                 inputProps={{ min: 0, step: "0.01" }}
               />
@@ -300,7 +298,7 @@ const SalaryForm: React.FC<SalaryFormProps> = ({
                 label="Other Taxes"
                 type="number"
                 fullWidth
-                value={formData.otherTaxes ?? ''}
+                value={formData.otherTaxes ?? ""}
                 onChange={handleNumericChange}
                 inputProps={{ min: 0, step: "0.01" }}
               />
@@ -311,7 +309,7 @@ const SalaryForm: React.FC<SalaryFormProps> = ({
                 label="Total Deductions"
                 type="number"
                 fullWidth
-                value={formData.totalDeductions ?? ''}
+                value={formData.totalDeductions ?? ""}
                 onChange={handleNumericChange}
                 inputProps={{ min: 0, step: "0.01" }}
               />
@@ -330,7 +328,7 @@ const SalaryForm: React.FC<SalaryFormProps> = ({
                 type="number"
                 required
                 fullWidth
-                value={formData.netPay ?? ''}
+                value={formData.netPay ?? ""}
                 onChange={handleNumericChange}
                 error={!!formErrors.netPay}
                 helperText={formErrors.netPay}
@@ -345,7 +343,7 @@ const SalaryForm: React.FC<SalaryFormProps> = ({
                 label="Year-End Tax Adjustment"
                 type="number"
                 fullWidth
-                value={formData.yearEndTaxAdjustment ?? ''}
+                value={formData.yearEndTaxAdjustment ?? ""}
                 onChange={handleNumericChange}
                 inputProps={{ step: "0.01" }}
               />
@@ -363,7 +361,7 @@ const SalaryForm: React.FC<SalaryFormProps> = ({
                 label="Days Used"
                 type="number"
                 fullWidth
-                value={formData.paidTimeOffDaysUsed ?? ''}
+                value={formData.paidTimeOffDaysUsed ?? ""}
                 onChange={handleNumericChange}
                 inputProps={{ min: 0, step: "0.5" }}
               />
@@ -374,7 +372,7 @@ const SalaryForm: React.FC<SalaryFormProps> = ({
                 label="Remaining Days"
                 type="number"
                 fullWidth
-                value={formData.paidTimeOffDaysRemaining ?? ''}
+                value={formData.paidTimeOffDaysRemaining ?? ""}
                 onChange={handleNumericChange}
                 inputProps={{ min: 0, step: "0.5" }}
               />
@@ -388,12 +386,12 @@ const SalaryForm: React.FC<SalaryFormProps> = ({
             disabled={loading}
             startIcon={loading ? <CircularProgress size={20} /> : null}
           >
-            {isEdit ? 'Save Changes' : 'Create Record'}
+            {isEdit ? "Save Changes" : "Create Record"}
           </Button>
         </Box>
       </Box>
     </Container>
-  )
-}
+  );
+};
 
-export default SalaryForm
+export default SalaryForm;

@@ -4,7 +4,7 @@ export class PrismaClient {
     create: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),
-  }
+  };
   salaryRecord = {
     create: jest.fn(),
     findFirst: jest.fn(),
@@ -12,10 +12,10 @@ export class PrismaClient {
     findMany: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),
-  }
+  };
   // Add other models and methods as needed for your tests
-  $connect = jest.fn()
-  $disconnect = jest.fn()
+  $connect = jest.fn();
+  $disconnect = jest.fn();
 }
 
 // Mock Decimal for Prisma
@@ -31,22 +31,26 @@ export class Decimal {
   }
 
   plus(other: Decimal | number | string): Decimal {
-    const sum = parseFloat(this.value.toString()) + parseFloat(other.toString());
+    const sum =
+      parseFloat(this.value.toString()) + parseFloat(other.toString());
     return new Decimal(sum);
   }
 
   minus(other: Decimal | number | string): Decimal {
-    const diff = parseFloat(this.value.toString()) - parseFloat(other.toString());
+    const diff =
+      parseFloat(this.value.toString()) - parseFloat(other.toString());
     return new Decimal(diff);
   }
 
   times(other: Decimal | number | string): Decimal {
-    const prod = parseFloat(this.value.toString()) * parseFloat(other.toString());
+    const prod =
+      parseFloat(this.value.toString()) * parseFloat(other.toString());
     return new Decimal(prod);
   }
 
   dividedBy(other: Decimal | number | string): Decimal {
-    const div = parseFloat(this.value.toString()) / parseFloat(other.toString());
+    const div =
+      parseFloat(this.value.toString()) / parseFloat(other.toString());
     return new Decimal(div);
   }
 

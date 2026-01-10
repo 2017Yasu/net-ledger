@@ -14,22 +14,30 @@ export class Decimal {
   }
 
   plus(other: Decimal | number | string): Decimal {
-    const sum = parseFloat(this.value.toString()) + parseFloat(new Decimal(other).toString());
+    const sum =
+      parseFloat(this.value.toString()) +
+      parseFloat(new Decimal(other).toString());
     return new Decimal(sum);
   }
 
   minus(other: Decimal | number | string): Decimal {
-    const diff = parseFloat(this.value.toString()) - parseFloat(new Decimal(other).toString());
+    const diff =
+      parseFloat(this.value.toString()) -
+      parseFloat(new Decimal(other).toString());
     return new Decimal(diff);
   }
 
   times(other: Decimal | number | string): Decimal {
-    const prod = parseFloat(this.value.toString()) * parseFloat(new Decimal(other).toString());
+    const prod =
+      parseFloat(this.value.toString()) *
+      parseFloat(new Decimal(other).toString());
     return new Decimal(prod);
   }
 
   dividedBy(other: Decimal | number | string): Decimal {
-    const div = parseFloat(this.value.toString()) / parseFloat(new Decimal(other).toString());
+    const div =
+      parseFloat(this.value.toString()) /
+      parseFloat(new Decimal(other).toString());
     return new Decimal(div);
   }
 
