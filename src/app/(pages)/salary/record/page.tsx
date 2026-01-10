@@ -9,7 +9,7 @@ import { SalaryRecord } from "@prisma/client";
 
 export default function RecordSalaryPage() {
   const router = useRouter();
-  const { token, user } = useAuth();
+  const { accessToken, user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);

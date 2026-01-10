@@ -8,7 +8,7 @@ import { SalaryRecord } from "@prisma/client";
 import { useRouter } from "next/navigation";
 
 export default function SalaryHistoryPage() {
-  const { token, user } = useAuth();
+  const { accessToken, user } = useAuth();
   const router = useRouter();
   const [salaryRecords, setSalaryRecords] = useState<SalaryRecord[]>([]);
   const [loading, setLoading] = useState(true);

@@ -1,24 +1,27 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { hashPassword, generateToken } from "@/lib/auth";
+import { hashPassword, generateAccessToken, generateRefreshToken } from "@/lib/auth"; // Updated imports
+import { createRefreshToken } from "@/lib/refresh-token"; // Import createRefreshToken
+import { logger } from "@/lib/logger"; // Import logger for consistency
 
 export async function POST(request: Request) {
   try {
     const { username, password } = await request.json();
 
     if (!username || !password) {
+      logger.warn("Registration attempt with missing username or password", { context: "Auth/Register" });
       return NextResponse.json(
         { message: "Username and password are required" },
         { status: 400 },
       );
     }
 
-    // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { username },
     });
 
     if (existingUser) {
+      logger.warn(`Registration attempt with existing username: ${username}`, { context: "Auth/Register" });
       return NextResponse.json(
         { message: "Username already taken" },
         { status: 409 },
@@ -34,7 +37,14 @@ export async function POST(request: Request) {
       },
     });
 
-    const token = generateToken(user.id);
+    const accessToken = generateAccessToken(user.id);
+    const refreshToken = generateRefreshToken(user.id);
+
+    // Calculate refresh token expiration (e.g., 7 days from now)
+    const refreshTokenExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days in milliseconds
+
+    // Store refresh token in the database
+    await createRefreshToken(user.id, refreshToken, refreshTokenExpiresAt);
 
     // Return user data without password hash
     const userResponse = {
@@ -44,9 +54,24 @@ export async function POST(request: Request) {
       updatedAt: user.updatedAt,
     };
 
-    return NextResponse.json({ token, user: userResponse }, { status: 201 });
-  } catch (error) {
-    console.error("Registration error:", error);
+    const response = NextResponse.json(
+      { accessToken, user: userResponse },
+      { status: 201 },
+    );
+
+    // Set refresh token as an HTTP-only cookie
+    response.cookies.set("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // Use secure in production
+      sameSite: "lax",
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
+    });
+
+    logger.info(`User registered successfully: ${user.username}`, { context: "Auth/Register", userId: user.id });
+    return response;
+  } catch (error: any) {
+    logger.error(`Registration error: ${error.message}`, { context: "Auth/Register", error: error.message });
     return NextResponse.json(
       { message: "Something went wrong" },
       { status: 500 },

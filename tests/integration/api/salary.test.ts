@@ -4,7 +4,7 @@ import {
   PUT as updateSalaryPUT,
   DELETE as deleteSalaryDELETE,
 } from "@/app/api/salary/[recordId]/route";
-import { generateToken } from "@/lib/auth";
+import { generateAccessToken } from "@/lib/auth";
 import { NextRequest } from "next/server"; // Import NextRequest
 import jwt from "jsonwebtoken";
 import { Prisma } from "@prisma/client";

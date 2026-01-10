@@ -21,7 +21,7 @@ interface SalaryDetailPageProps {
 
 export default function SalaryDetailPage({ params }: SalaryDetailPageProps) {
   const { recordId } = params;
-  const { token, user } = useAuth();
+  const { accessToken, user } = useAuth();
   const router = useRouter();
   const [salaryRecord, setSalaryRecord] = useState<SalaryRecord | null>(null);
   const [loading, setLoading] = useState(true);

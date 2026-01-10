@@ -2,9 +2,10 @@ import { createContext, useContext } from "react";
 
 interface AuthContextType {
   user: { id: string; username: string } | null;
-  token: string | null;
-  login: (token: string, user: { id: string; username: string }) => void;
+  accessToken: string | null;
+  login: (accessToken: string, user: { id: string; username: string }) => void;
   logout: () => void;
+  updateAccessToken: (newAccessToken: string) => void; // New function
   loading: boolean;
 }
 

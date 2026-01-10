@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { generateToken, hashPassword } from "@/lib/auth";
+import { generateAccessToken, hashPassword } from "@/lib/auth"; // Updated import
 import prisma from "@/lib/prisma";
 
 // Mock environment variables for JWT secret and expiry

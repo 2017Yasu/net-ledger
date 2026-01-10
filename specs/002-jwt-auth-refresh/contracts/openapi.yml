@@ -1,0 +1,122 @@
+openapi: 3.0.0
+info:
+  title: JWT Authentication with Refresh Token API
+  version: 1.0.0
+  description: API for user authentication, token refreshing, and logout using JWTs and refresh tokens.
+
+servers:
+  - url: http://localhost:3000/api
+    description: Local Development Server
+
+paths:
+  /auth/login:
+    post:
+      summary: Authenticate user and issue JWTs
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  format: password
+                  example: P@ssw0rd123
+      responses:
+        "200":
+          description: Authentication successful. Returns access token in body and sets refresh token in HTTP-only cookie.
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: refreshToken=abcdef123456; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=604800
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                    description: Short-lived JWT access token
+        "401":
+          description: Unauthorized - Invalid credentials
+        "400":
+          description: Bad Request - Invalid input data
+
+  /auth/refresh:
+    post:
+      summary: Refresh access token using refresh token
+      operationId: refreshAccessToken
+      security:
+        - CookieAuth: []
+      responses:
+        "200":
+          description: Access token successfully refreshed. Returns new access token and potentially a new refresh token (if rotation is implemented).
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: refreshToken=newabcdef123456; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=604800
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                    description: New short-lived JWT access token
+        "401":
+          description: Unauthorized - Invalid or expired refresh token
+        "403":
+          description: Forbidden - Refresh token missing or improperly sent
+
+  /auth/logout:
+    post:
+      summary: Invalidate current session and clear refresh token
+      operationId: logoutUser
+      security:
+        - CookieAuth: []
+      responses:
+        "204":
+          description: Logout successful. Refresh token cleared from cookie.
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: refreshToken=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0
+        "401":
+          description: Unauthorized - No active session or invalid token
+        "403":
+          description: Forbidden - Refresh token missing or improperly sent
+
+components:
+  securitySchemes:
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: refreshToken
+      description: Refresh token stored in an HTTP-only cookie.
+  schemas:
+    UserLogin:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          example: P@ssw0rd123

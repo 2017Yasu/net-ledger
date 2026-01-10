@@ -1,57 +1,57 @@
 "use client";
 
-import { verifyToken } from "@/lib/auth";
 import { AuthContext } from "@/lib/auth-context";
-import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
+import axios from "axios"; // Import axios
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<{ id: string; username: string } | null>(
     null,
   );
-  const [token, setToken] = useState<string | null>(null);
+  const [accessToken, setAccessToken] = useState<string | null>(null); // State for access token in memory
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    const fn = () => {
-      const storedToken = Cookies.get("token"); // Get token from cookies
-      if (storedToken) {
-        try {
-          const decoded = verifyToken(storedToken);
-          setUser({ id: decoded.userId, username: decoded.userId }); // Assuming userId is username for now
-          setToken(storedToken);
-        } catch (error) {
-          console.error("Token verification failed:", error);
-          Cookies.remove("token"); // Remove invalid token
-        }
-      }
-      setLoading(false);
-    };
-
-    fn();
+    // Access token should not persist in client-side storage (cookies/localStorage)
+    // On initial load, assume no active access token.
+    // The presence of a valid refresh token (HTTP-only cookie) will be checked by API routes
+    // and trigger a refresh if needed for seamless session.
+    setLoading(false); // Set loading to false once initial check is done
   }, []);
 
   const login = (
-    newToken: string,
+    newAccessToken: string,
     newUser: { id: string; username: string },
   ) => {
-    Cookies.set("token", newToken, { expires: 7 }); // Store token in cookies, expires in 7 days
-    setToken(newToken);
+    setAccessToken(newAccessToken); // Store access token in memory
     setUser(newUser);
     router.push("/dashboard");
   };
 
-  const logout = () => {
-    Cookies.remove("token"); // Remove token from cookies
-    setToken(null);
-    setUser(null);
-    router.push("/auth/login");
+  const logout = async () => {
+    // Make logout async
+    try {
+      await axios.post("/api/auth/logout"); // Call logout API
+    } catch (error) {
+      console.error("Logout API call failed:", error);
+      // Even if API call fails, clear client-side state for UX
+    } finally {
+      setAccessToken(null);
+      setUser(null);
+      router.push("/auth/login");
+    }
+  };
+
+  const updateAccessToken = (newAccessToken: string) => {
+    setAccessToken(newAccessToken);
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, loading }}>
+    <AuthContext.Provider
+      value={{ user, accessToken, login, logout, updateAccessToken, loading }}
+    >
       {children}
     </AuthContext.Provider>
   );
