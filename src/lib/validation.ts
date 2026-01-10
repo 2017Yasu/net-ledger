@@ -1,5 +1,4 @@
-import { SalaryRecord } from "@prisma/client";
-import { Decimal } from "@prisma/client/runtime/library";
+import { Prisma, SalaryRecord } from "@prisma/client";
 
 export function validateSalaryRecordData(data: Partial<SalaryRecord>) {
   const errors: string[] = [];
@@ -24,7 +23,7 @@ export function validateSalaryRecordData(data: Partial<SalaryRecord>) {
   }
 
   // Validate non-negative values for Decimal fields
-  const decimalFields = [
+  const decimalFields: (keyof SalaryRecord)[] = [
     "baseSalary",
     "overtimeAllowance",
     "commutingAllowance",
@@ -40,16 +39,17 @@ export function validateSalaryRecordData(data: Partial<SalaryRecord>) {
     "yearEndTaxAdjustment",
   ];
   decimalFields.forEach((field) => {
-    if (data[field] !== undefined && data[field] !== null) {
-      const value = new Decimal(data[field]);
-      if (value.lessThan(0)) {
+    const value = data[field];
+    if (value !== undefined && value !== null && !(value instanceof Date)) {
+      const decimalValue = new Prisma.Decimal(value);
+      if (decimalValue.lessThan(0)) {
         errors.push(`${field} cannot be negative.`);
       }
     }
   });
 
   // Validate non-negative values for Float fields
-  const floatFields = [
+  const floatFields: (keyof SalaryRecord)[] = [
     "attendanceDays",
     "daysWorked",
     "regularOvertimeHours",
@@ -59,7 +59,8 @@ export function validateSalaryRecordData(data: Partial<SalaryRecord>) {
     "paidTimeOffDaysRemaining",
   ];
   floatFields.forEach((field) => {
-    if (data[field] !== undefined && data[field] !== null && data[field] < 0) {
+    const value = data[field];
+    if (value !== undefined && value !== null && (value as number) < 0) {
       errors.push(`${field} cannot be negative.`);
     }
   });

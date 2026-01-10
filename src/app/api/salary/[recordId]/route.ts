@@ -1,11 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getUserIdFromRequest } from "@/lib/server-auth";
-import { Decimal } from "@prisma/client/runtime/library";
+import { Prisma } from "@prisma/client";
 import { validateSalaryRecordData } from "@/lib/validation"; // Import the new validation utility
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { recordId: string } },
 ) {
   try {
@@ -50,7 +50,7 @@ export async function GET(
 }
 
 export async function PUT(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { recordId: string } },
 ) {
   try {
@@ -133,40 +133,47 @@ export async function PUT(
         lateNightOvertimeHours,
         workingHours,
         baseSalary:
-          baseSalary !== undefined ? new Decimal(baseSalary) : undefined,
+          baseSalary !== undefined ? new Prisma.Decimal(baseSalary) : undefined,
         overtimeAllowance:
           overtimeAllowance !== undefined
-            ? new Decimal(overtimeAllowance)
+            ? new Prisma.Decimal(overtimeAllowance)
             : undefined,
         commutingAllowance:
           commutingAllowance !== undefined
-            ? new Decimal(commutingAllowance)
+            ? new Prisma.Decimal(commutingAllowance)
             : undefined,
         otherAllowances:
           otherAllowances !== undefined
-            ? new Decimal(otherAllowances)
+            ? new Prisma.Decimal(otherAllowances)
             : undefined,
         grossEarnings:
-          grossEarnings !== undefined ? new Decimal(grossEarnings) : undefined,
+          grossEarnings !== undefined
+            ? new Prisma.Decimal(grossEarnings)
+            : undefined,
         socialInsuranceContributions:
           socialInsuranceContributions !== undefined
-            ? new Decimal(socialInsuranceContributions)
+            ? new Prisma.Decimal(socialInsuranceContributions)
             : undefined,
         taxableAmount:
-          taxableAmount !== undefined ? new Decimal(taxableAmount) : undefined,
-        incomeTax: incomeTax !== undefined ? new Decimal(incomeTax) : undefined,
+          taxableAmount !== undefined
+            ? new Prisma.Decimal(taxableAmount)
+            : undefined,
+        incomeTax:
+          incomeTax !== undefined ? new Prisma.Decimal(incomeTax) : undefined,
         residentTax:
-          residentTax !== undefined ? new Decimal(residentTax) : undefined,
+          residentTax !== undefined
+            ? new Prisma.Decimal(residentTax)
+            : undefined,
         otherTaxes:
-          otherTaxes !== undefined ? new Decimal(otherTaxes) : undefined,
+          otherTaxes !== undefined ? new Prisma.Decimal(otherTaxes) : undefined,
         totalDeductions:
           totalDeductions !== undefined
-            ? new Decimal(totalDeductions)
+            ? new Prisma.Decimal(totalDeductions)
             : undefined,
-        netPay: netPay !== undefined ? new Decimal(netPay) : undefined,
+        netPay: netPay !== undefined ? new Prisma.Decimal(netPay) : undefined,
         yearEndTaxAdjustment:
           yearEndTaxAdjustment !== undefined
-            ? new Decimal(yearEndTaxAdjustment)
+            ? new Prisma.Decimal(yearEndTaxAdjustment)
             : undefined,
         paidTimeOffDaysUsed,
         paidTimeOffDaysRemaining,
@@ -176,7 +183,10 @@ export async function PUT(
     return NextResponse.json(updatedRecord, { status: 200 });
   } catch (error) {
     console.error("Error updating salary record:", error);
-    if (error.code === "P2002") {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
       // Prisma Unique constraint violation
       return NextResponse.json(
         { message: "A salary record for this month and year already exists." },
@@ -191,7 +201,7 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { recordId: string } },
 ) {
   try {

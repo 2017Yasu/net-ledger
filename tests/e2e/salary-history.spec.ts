@@ -15,6 +15,8 @@ test.describe("Salary History and Detail Flow", () => {
   let createdRecordMonth: number;
   let createdRecordYear: number;
   let secondRecordId: string;
+  let secondRecordMonth: number;
+  let secondRecordYear: number;
 
   test.beforeAll(async () => {
     // Register a user for testing
@@ -44,8 +46,8 @@ test.describe("Salary History and Detail Flow", () => {
     });
     createdRecordId = firstRecord.id;
 
-    const secondRecordMonth = (createdRecordMonth % 12) + 1;
-    const secondRecordYear =
+    secondRecordMonth = (createdRecordMonth % 12) + 1;
+    secondRecordYear =
       createdRecordYear + (secondRecordMonth < createdRecordMonth ? 1 : 0);
     const secondRecord = await prisma.salaryRecord.create({
       data: {
@@ -92,9 +94,7 @@ test.describe("Salary History and Detail Flow", () => {
     // Make sure the second record is also visible
 
     await expect(
-      page.locator(
-        `text=${(createdRecordMonth % 12) + 1}/${createdRecordYear + (secondRecordMonth < createdRecordMonth ? 1 : 0)}`,
-      ),
+      page.locator(`text=${secondRecordMonth}/${secondRecordYear}`),
     ).toBeVisible();
 
     // 3. Click on a specific record in the list and verify detail view
@@ -161,9 +161,7 @@ test.describe("Salary History and Detail Flow", () => {
 
     // Verify the record is no longer visible
     await expect(
-      page.locator(
-        `text=${(createdRecordMonth % 12) + 1}/${createdRecordYear + (secondRecordMonth < createdRecordMonth ? 1 : 0)}`,
-      ),
+      page.locator(`text=${secondRecordMonth}/${secondRecordYear}`),
     ).not.toBeVisible();
     await expect(page.locator("text=Net: $2300.00")).not.toBeVisible();
 

@@ -7,11 +7,10 @@ import {
   Box,
   Typography,
   Container,
-  Grid,
   CircularProgress,
   Alert,
 } from "@mui/material";
-import { SalaryRecord } from "@prisma/client";
+import { SalaryRecord, Prisma } from "@prisma/client";
 
 interface SalaryFormProps {
   initialData?: Partial<SalaryRecord> | null;
@@ -31,9 +30,9 @@ const SalaryForm: React.FC<SalaryFormProps> = ({
   const [formData, setFormData] = useState<Partial<SalaryRecord>>({
     month: new Date().getMonth() + 1, // Current month
     year: new Date().getFullYear(), // Current year
-    baseSalary: 0,
-    grossEarnings: 0,
-    netPay: 0,
+    baseSalary: new Prisma.Decimal(0),
+    grossEarnings: new Prisma.Decimal(0),
+    netPay: new Prisma.Decimal(0),
     ...initialData,
   });
   const [formErrors, setFormErrors] = useState<
@@ -64,14 +63,17 @@ const SalaryForm: React.FC<SalaryFormProps> = ({
     ) {
       errors.year = "Year must be a valid year (e.g., 1900-2100)";
     }
-    if (formData.baseSalary === undefined || formData.baseSalary < 0) {
+    if (formData.baseSalary === undefined || formData.baseSalary.isNegative()) {
       errors.baseSalary = "Base Salary is required and cannot be negative";
     }
-    if (formData.grossEarnings === undefined || formData.grossEarnings < 0) {
+    if (
+      formData.grossEarnings === undefined ||
+      formData.grossEarnings.isNegative()
+    ) {
       errors.grossEarnings =
         "Gross Earnings is required and cannot be negative";
     }
-    if (formData.netPay === undefined || formData.netPay < 0) {
+    if (formData.netPay === undefined || formData.netPay.isNegative()) {
       errors.netPay = "Net Pay is required and cannot be negative";
     }
     // Add validation for other fields as needed based on data-model.md
@@ -108,9 +110,13 @@ const SalaryForm: React.FC<SalaryFormProps> = ({
           </Alert>
         )}
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 3 }}>
-          <Grid container spacing={2}>
+          <Box
+            display="grid"
+            gridTemplateColumns={{ sm: "1fr 1fr", xs: "1fr" }}
+            gap={2}
+          >
             {/* Month and Year */}
-            <Grid item xs={12} sm={6}>
+            <Box>
               <TextField
                 name="month"
                 label="Month"
@@ -123,8 +129,8 @@ const SalaryForm: React.FC<SalaryFormProps> = ({
                 helperText={formErrors.month}
                 inputProps={{ min: 1, max: 12 }}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 name="year"
                 label="Year"
@@ -137,10 +143,10 @@ const SalaryForm: React.FC<SalaryFormProps> = ({
                 helperText={formErrors.year}
                 inputProps={{ min: 1900, max: 2100 }}
               />
-            </Grid>
+            </Box>
 
             {/* Attendance */}
-            <Grid item xs={12} sm={6}>
+            <Box>
               <TextField
                 name="attendanceDays"
                 label="Attendance Days"
@@ -150,8 +156,8 @@ const SalaryForm: React.FC<SalaryFormProps> = ({
                 onChange={handleNumericChange}
                 inputProps={{ min: 0 }}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 name="daysWorked"
                 label="Days Worked"
@@ -161,8 +167,8 @@ const SalaryForm: React.FC<SalaryFormProps> = ({
                 onChange={handleNumericChange}
                 inputProps={{ min: 0 }}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 name="workingHours"
                 label="Working Hours"
@@ -172,190 +178,190 @@ const SalaryForm: React.FC<SalaryFormProps> = ({
                 onChange={handleNumericChange}
                 inputProps={{ min: 0 }}
               />
-            </Grid>
+            </Box>
 
             {/* Earnings */}
-            <Grid item xs={12}>
+            <Box>
               <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
                 Earnings
               </Typography>
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 name="baseSalary"
                 label="Base Salary"
                 type="number"
                 required
                 fullWidth
-                value={formData.baseSalary ?? ""}
+                value={formData.baseSalary?.toNumber() ?? ""}
                 onChange={handleNumericChange}
                 error={!!formErrors.baseSalary}
                 helperText={formErrors.baseSalary}
                 inputProps={{ min: 0, step: "0.01" }}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 name="overtimeAllowance"
                 label="Overtime Allowance"
                 type="number"
                 fullWidth
-                value={formData.overtimeAllowance ?? ""}
+                value={formData.overtimeAllowance?.toNumber() ?? ""}
                 onChange={handleNumericChange}
                 inputProps={{ min: 0, step: "0.01" }}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 name="commutingAllowance"
                 label="Commuting Allowance"
                 type="number"
                 fullWidth
-                value={formData.commutingAllowance ?? ""}
+                value={formData.commutingAllowance?.toNumber() ?? ""}
                 onChange={handleNumericChange}
                 inputProps={{ min: 0, step: "0.01" }}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 name="otherAllowances"
                 label="Other Allowances"
                 type="number"
                 fullWidth
-                value={formData.otherAllowances ?? ""}
+                value={formData.otherAllowances?.toNumber() ?? ""}
                 onChange={handleNumericChange}
                 inputProps={{ min: 0, step: "0.01" }}
               />
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box gridColumn="span 2">
               <TextField
                 name="grossEarnings"
                 label="Gross Earnings"
                 type="number"
                 required
                 fullWidth
-                value={formData.grossEarnings ?? ""}
+                value={formData.grossEarnings?.toNumber() ?? ""}
                 onChange={handleNumericChange}
                 error={!!formErrors.grossEarnings}
                 helperText={formErrors.grossEarnings}
                 inputProps={{ min: 0, step: "0.01" }}
               />
-            </Grid>
+            </Box>
 
             {/* Deductions */}
-            <Grid item xs={12}>
+            <Box gridColumn="span 2">
               <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
                 Deductions
               </Typography>
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 name="socialInsuranceContributions"
                 label="Total Social Insurance Contributions"
                 type="number"
                 fullWidth
-                value={formData.socialInsuranceContributions ?? ""}
+                value={formData.socialInsuranceContributions?.toNumber() ?? ""}
                 onChange={handleNumericChange}
                 inputProps={{ min: 0, step: "0.01" }}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 name="taxableAmount"
                 label="Taxable Amount"
                 type="number"
                 fullWidth
-                value={formData.taxableAmount ?? ""}
+                value={formData.taxableAmount?.toNumber() ?? ""}
                 onChange={handleNumericChange}
                 inputProps={{ min: 0, step: "0.01" }}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 name="incomeTax"
                 label="Income Tax"
                 type="number"
                 fullWidth
-                value={formData.incomeTax ?? ""}
+                value={formData.incomeTax?.toNumber() ?? ""}
                 onChange={handleNumericChange}
                 inputProps={{ min: 0, step: "0.01" }}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 name="residentTax"
                 label="Resident Tax"
                 type="number"
                 fullWidth
-                value={formData.residentTax ?? ""}
+                value={formData.residentTax?.toNumber() ?? ""}
                 onChange={handleNumericChange}
                 inputProps={{ min: 0, step: "0.01" }}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 name="otherTaxes"
                 label="Other Taxes"
                 type="number"
                 fullWidth
-                value={formData.otherTaxes ?? ""}
+                value={formData.otherTaxes?.toNumber() ?? ""}
                 onChange={handleNumericChange}
                 inputProps={{ min: 0, step: "0.01" }}
               />
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box gridColumn="span 2">
               <TextField
                 name="totalDeductions"
                 label="Total Deductions"
                 type="number"
                 fullWidth
-                value={formData.totalDeductions ?? ""}
+                value={formData.totalDeductions?.toNumber() ?? ""}
                 onChange={handleNumericChange}
                 inputProps={{ min: 0, step: "0.01" }}
               />
-            </Grid>
+            </Box>
 
             {/* Net Pay */}
-            <Grid item xs={12}>
+            <Box gridColumn="span 2">
               <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
                 Net Pay
               </Typography>
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box gridColumn="span 2">
               <TextField
                 name="netPay"
                 label="Net Pay"
                 type="number"
                 required
                 fullWidth
-                value={formData.netPay ?? ""}
+                value={formData.netPay?.toNumber() ?? ""}
                 onChange={handleNumericChange}
                 error={!!formErrors.netPay}
                 helperText={formErrors.netPay}
                 inputProps={{ min: 0, step: "0.01" }}
               />
-            </Grid>
+            </Box>
 
             {/* Year-End Tax Adjustment */}
-            <Grid item xs={12}>
+            <Box gridColumn="span 2">
               <TextField
                 name="yearEndTaxAdjustment"
                 label="Year-End Tax Adjustment"
                 type="number"
                 fullWidth
-                value={formData.yearEndTaxAdjustment ?? ""}
+                value={formData.yearEndTaxAdjustment?.toNumber() ?? ""}
                 onChange={handleNumericChange}
                 inputProps={{ step: "0.01" }}
               />
-            </Grid>
+            </Box>
 
             {/* Paid Time Off */}
-            <Grid item xs={12}>
+            <Box gridColumn="span 2">
               <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
                 Paid Time Off
               </Typography>
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 name="paidTimeOffDaysUsed"
                 label="Days Used"
@@ -365,8 +371,8 @@ const SalaryForm: React.FC<SalaryFormProps> = ({
                 onChange={handleNumericChange}
                 inputProps={{ min: 0, step: "0.5" }}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 name="paidTimeOffDaysRemaining"
                 label="Remaining Days"
@@ -376,8 +382,8 @@ const SalaryForm: React.FC<SalaryFormProps> = ({
                 onChange={handleNumericChange}
                 inputProps={{ min: 0, step: "0.5" }}
               />
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
           <Button
             type="submit"
             fullWidth

@@ -148,9 +148,7 @@ describe("Auth API Integration Tests", () => {
 
   describe("POST /api/auth/logout", () => {
     it("should return 204 for successful logout", async () => {
-      const mockRequest = {} as Request; // Logout doesn't need a body for this implementation
-
-      const response = await logoutPOST(mockRequest);
+      const response = await logoutPOST();
 
       expect(response.status).toBe(204);
     });

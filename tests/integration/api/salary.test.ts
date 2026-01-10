@@ -4,11 +4,10 @@ import {
   PUT as updateSalaryPUT,
   DELETE as deleteSalaryDELETE,
 } from "@/app/api/salary/[recordId]/route";
-import { Decimal } from "@/lib/prisma"; // This will now correctly resolve to the mocked named export Decimal
 import { generateToken } from "@/lib/auth";
 import { NextRequest } from "next/server"; // Import NextRequest
 import jwt from "jsonwebtoken";
-import { Decimal as MockDecimalClass } from "__mocks__/@prisma/client"; // Import our mock Decimal class directly
+import { Prisma } from "@prisma/client";
 
 // Define mockPrismaClient and MockDecimalClass at the top-level
 // so they are hoisted and available when jest.mock is evaluated.
@@ -25,14 +24,15 @@ const mockPrismaClient = {
     delete: jest.fn(),
     findMany: jest.fn(),
   },
-  Decimal: MockDecimalClass, // Expose MockDecimalClass here as well
 };
 
 // Mock the entire @/lib/prisma module to control both default and named exports
 jest.mock("@/lib/prisma", () => ({
   __esModule: true,
   default: mockPrismaClient, // Default export is the mocked PrismaClient instance
-  Decimal: MockDecimalClass, // Named export for Decimal, using our custom mock Decimal
+  Prisma: {
+    Decimal: jest.requireActual("decimal.js"),
+  },
 }));
 
 // Mock JWT_SECRET for testing
@@ -96,9 +96,9 @@ describe("SalaryRecord API Integration Tests", () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         ...data.data,
-        baseSalary: new Decimal(data.data.baseSalary),
-        grossEarnings: new Decimal(data.data.grossEarnings),
-        netPay: new Decimal(data.data.netPay),
+        baseSalary: new Prisma.Decimal(data.data.baseSalary),
+        grossEarnings: new Prisma.Decimal(data.data.grossEarnings),
+        netPay: new Prisma.Decimal(data.data.netPay),
       }),
     );
     (mockPrismaClient.salaryRecord.findFirst as jest.Mock).mockResolvedValue(
@@ -116,16 +116,16 @@ describe("SalaryRecord API Integration Tests", () => {
         // Ensure that Decimal fields in the returned object are instances of Decimal
         baseSalary:
           args.data.baseSalary !== undefined
-            ? new Decimal(args.data.baseSalary)
-            : new Decimal(0),
+            ? new Prisma.Decimal(args.data.baseSalary)
+            : new Prisma.Decimal(0),
         grossEarnings:
           args.data.grossEarnings !== undefined
-            ? new Decimal(args.data.grossEarnings)
-            : new Decimal(0),
+            ? new Prisma.Decimal(args.data.grossEarnings)
+            : new Prisma.Decimal(0),
         netPay:
           args.data.netPay !== undefined
-            ? new Decimal(args.data.netPay)
-            : new Decimal(0),
+            ? new Prisma.Decimal(args.data.netPay)
+            : new Prisma.Decimal(0),
         ...args.data,
       }),
     );
@@ -214,9 +214,9 @@ describe("SalaryRecord API Integration Tests", () => {
       userId: mockUserId,
       month: 1,
       year: 2023,
-      baseSalary: new Decimal(1000), // Use imported Decimal
-      grossEarnings: new Decimal(1200), // Use imported Decimal
-      netPay: new Decimal(800), // Use imported Decimal
+      baseSalary: new Prisma.Decimal(1000), // Use imported Decimal
+      grossEarnings: new Prisma.Decimal(1200), // Use imported Decimal
+      netPay: new Prisma.Decimal(800), // Use imported Decimal
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -318,9 +318,9 @@ describe("SalaryRecord API Integration Tests", () => {
       userId: mockUserId,
       month: 2,
       year: 2023,
-      baseSalary: new Decimal(1500), // Use imported Decimal
-      grossEarnings: new Decimal(1800), // Use imported Decimal
-      netPay: new Decimal(1200), // Use imported Decimal
+      baseSalary: new Prisma.Decimal(1500), // Use imported Decimal
+      grossEarnings: new Prisma.Decimal(1800), // Use imported Decimal
+      netPay: new Prisma.Decimal(1200), // Use imported Decimal
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -395,9 +395,9 @@ describe("SalaryRecord API Integration Tests", () => {
       userId: mockUserId,
       month: 3,
       year: 2023,
-      baseSalary: new Decimal(2000), // Use imported Decimal
-      grossEarnings: new Decimal(2500), // Use imported Decimal
-      netPay: new Decimal(1800), // Use imported Decimal
+      baseSalary: new Prisma.Decimal(2000), // Use imported Decimal
+      grossEarnings: new Prisma.Decimal(2500), // Use imported Decimal
+      netPay: new Prisma.Decimal(1800), // Use imported Decimal
       createdAt: new Date(),
       updatedAt: new Date(),
     };

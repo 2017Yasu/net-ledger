@@ -15,7 +15,11 @@ const SalaryDetailView: React.FC<SalaryDetailViewProps> = ({
     label: string,
     value: string | number | null | undefined,
   ) => (
-    <Grid item xs={12} sm={6}>
+    <Box
+      display="grid"
+      gridTemplateColumns={{ sm: "1fr 1fr", xs: "1fr" }}
+      gap={2}
+    >
       <Typography variant="subtitle2" color="text.secondary">
         {label}
       </Typography>
@@ -24,7 +28,7 @@ const SalaryDetailView: React.FC<SalaryDetailViewProps> = ({
           ? value.toString()
           : "-"}
       </Typography>
-    </Grid>
+    </Box>
   );
 
   return (

@@ -1,10 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getUserIdFromRequest } from "@/lib/server-auth";
-import { Decimal } from "@prisma/client/runtime/library";
+import { Prisma } from "@prisma/client";
 import { validateSalaryRecordData } from "@/lib/validation"; // Import the new validation utility
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const userId = getUserIdFromRequest(request);
     if (!userId) {
@@ -74,26 +74,30 @@ export async function POST(request: Request) {
         regularOvertimeHours,
         lateNightOvertimeHours,
         workingHours,
-        baseSalary: new Decimal(baseSalary),
+        baseSalary: new Prisma.Decimal(baseSalary),
         overtimeAllowance: overtimeAllowance
-          ? new Decimal(overtimeAllowance)
+          ? new Prisma.Decimal(overtimeAllowance)
           : null,
         commutingAllowance: commutingAllowance
-          ? new Decimal(commutingAllowance)
+          ? new Prisma.Decimal(commutingAllowance)
           : null,
-        otherAllowances: otherAllowances ? new Decimal(otherAllowances) : null,
-        grossEarnings: new Decimal(grossEarnings),
+        otherAllowances: otherAllowances
+          ? new Prisma.Decimal(otherAllowances)
+          : null,
+        grossEarnings: new Prisma.Decimal(grossEarnings),
         socialInsuranceContributions: socialInsuranceContributions
-          ? new Decimal(socialInsuranceContributions)
+          ? new Prisma.Decimal(socialInsuranceContributions)
           : null,
-        taxableAmount: taxableAmount ? new Decimal(taxableAmount) : null,
-        incomeTax: incomeTax ? new Decimal(incomeTax) : null,
-        residentTax: residentTax ? new Decimal(residentTax) : null,
-        otherTaxes: otherTaxes ? new Decimal(otherTaxes) : null,
-        totalDeductions: totalDeductions ? new Decimal(totalDeductions) : null,
-        netPay: new Decimal(netPay),
+        taxableAmount: taxableAmount ? new Prisma.Decimal(taxableAmount) : null,
+        incomeTax: incomeTax ? new Prisma.Decimal(incomeTax) : null,
+        residentTax: residentTax ? new Prisma.Decimal(residentTax) : null,
+        otherTaxes: otherTaxes ? new Prisma.Decimal(otherTaxes) : null,
+        totalDeductions: totalDeductions
+          ? new Prisma.Decimal(totalDeductions)
+          : null,
+        netPay: new Prisma.Decimal(netPay),
         yearEndTaxAdjustment: yearEndTaxAdjustment
-          ? new Decimal(yearEndTaxAdjustment)
+          ? new Prisma.Decimal(yearEndTaxAdjustment)
           : null,
         paidTimeOffDaysUsed,
         paidTimeOffDaysRemaining,
@@ -116,7 +120,7 @@ interface SalaryWhereClause {
   year?: number;
 }
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     const userId = getUserIdFromRequest(request);
     if (!userId) {
