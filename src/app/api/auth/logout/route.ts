@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
       return response;
     }
 
-    const storedRefreshToken = await getRefreshToken(refreshTokenCookie);
+    const storedRefreshToken = await getRefreshToken(refreshTokenCookie, decodedRefreshToken.userId);
 
     if (
       storedRefreshToken &&

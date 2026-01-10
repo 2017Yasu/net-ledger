@@ -54,7 +54,7 @@ export async function proxy(request: NextRequest) {
   if (refreshTokenCookie) {
     try {
       const decodedRefreshToken = verifyRefreshToken(refreshTokenCookie);
-      const storedRefreshToken = await getRefreshToken(refreshTokenCookie);
+      const storedRefreshToken = await getRefreshToken(refreshTokenCookie, decodedRefreshToken.userId);
 
       if (
         storedRefreshToken &&

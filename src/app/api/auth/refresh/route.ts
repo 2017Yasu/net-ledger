@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const storedRefreshToken = await getRefreshToken(refreshTokenCookie);
+    const storedRefreshToken = await getRefreshToken(refreshTokenCookie, decodedRefreshToken.userId);
 
     if (
       !storedRefreshToken ||

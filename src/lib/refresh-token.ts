@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import { hashRefreshToken } from "./auth"; // Import the hashing utility
+import { compareHashedRefreshTokens, hashRefreshToken } from "./auth"; // Import the hashing utility
 
 export async function createRefreshToken(
   userId: string,
@@ -31,16 +31,21 @@ export async function revokeRefreshToken(token: string): Promise<void> {
 
 export async function getRefreshToken(
   token: string,
+  userId: string,
 ): Promise<Awaited<ReturnType<typeof prisma.refreshToken.findUnique>> | null> {
-  const hashedToken = await hashRefreshToken(token);
-  const refreshToken = await prisma.refreshToken.findUnique({
+  const refreshTokens = await prisma.refreshToken.findMany({
     where: {
-      token: hashedToken,
+      userId,
       isRevoked: false,
       expiresAt: {
         gt: new Date(), // Ensure it's not expired
       },
     },
   });
-  return refreshToken;
+  for (const storedToken of refreshTokens) {
+    if (await compareHashedRefreshTokens(token, storedToken.token)) {
+      return storedToken;
+    }
+  }
+  return null;
 }
