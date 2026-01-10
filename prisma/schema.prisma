@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String         @id @default(uuid())
+  username     String         @unique
+  passwordHash String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  salaryRecords SalaryRecord[]
+}
+
+model SalaryRecord {
+  id                           String    @id @default(uuid())
+  userId                       String
+  month                        Int
+  year                         Int
+  attendanceDays               Float?
+  daysWorked                   Float?
+  regularOvertimeHours         Float?
+  lateNightOvertimeHours       Float?
+  workingHours                 Float?
+  baseSalary                   Decimal   @db.Decimal(10, 2)
+  overtimeAllowance            Decimal?  @db.Decimal(10, 2)
+  commutingAllowance           Decimal?  @db.Decimal(10, 2)
+  otherAllowances              Decimal?  @db.Decimal(10, 2)
+  grossEarnings                Decimal   @db.Decimal(10, 2)
+  socialInsuranceContributions Decimal?  @db.Decimal(10, 2)
+  taxableAmount                Decimal?  @db.Decimal(10, 2)
+  incomeTax                    Decimal?  @db.Decimal(10, 2)
+  residentTax                  Decimal?  @db.Decimal(10, 2)
+  otherTaxes                   Decimal?  @db.Decimal(10, 2)
+  totalDeductions              Decimal?  @db.Decimal(10, 2)
+  netPay                       Decimal   @db.Decimal(10, 2)
+  yearEndTaxAdjustment         Decimal?  @db.Decimal(10, 2)
+  paidTimeOffDaysUsed          Float?
+  paidTimeOffDaysRemaining     Float?
+  createdAt                    DateTime  @default(now())
+  updatedAt                    DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, month, year]) // Ensures only one record per user per month/year
+}

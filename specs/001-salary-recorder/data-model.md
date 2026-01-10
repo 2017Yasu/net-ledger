@@ -65,4 +65,4 @@ Represents the complete salary details for a specific user for a specific month 
 - `attendanceDays`, `daysWorked`, `regularOvertimeHours`, `lateNightOvertimeHours`, `workingHours`, `paidTimeOffDaysUsed`, `paidTimeOffDaysRemaining` must be non-negative.
 - `username` must be unique.
 - System must handle cases where a user tries to create a salary record for a month that already has one (should be an update).
-- System must provide clear validation and error messages for incorrect data entry (e.g., non-numeric input).
+- System must provide clear validation and error messages for incorrect data entry (e.g., non-numeric input in a currency field).

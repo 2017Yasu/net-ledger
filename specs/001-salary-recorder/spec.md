@@ -39,7 +39,7 @@ As a logged-in user, I want to view a list of my past salary records and inspect
 2.  **Given** I am on the "History" page, **When** I click on a specific month, **Then** I am shown all the detailed salary information I entered for that month.
 
 ### Edge Cases
-- What happens when a user tries to create a salary record for a month that already has one? (Should it be an update?)
+- **Resolved**: If a user attempts to create a salary record for a month that already has one, the system should allow the user to explicitly update the existing record. If no record exists, a new one is created.
 - How does the system handle negative values in fields where they are not expected?
 - What happens if the user's session times out while they are filling the form?
 
@@ -47,21 +47,33 @@ As a logged-in user, I want to view a list of my past salary records and inspect
 
 ### Functional Requirements
 - **FR-001**: The system MUST provide a secure registration and login mechanism for users based on a username and password.
-- **FR-002**: The system MUST allow authenticated users to create, read, update, and delete their own monthly salary records.
+- **FR-002**: The system MUST allow authenticated users to create, read, update, and delete their own monthly salary records, specifically allowing updates for existing month/year entries.
 - **FR-003**: A salary record MUST accommodate all fields specified in the user description, respecting which are optional.
 - **FR-004**: Users MUST NOT be able to view or edit the salary records of other users.
 - **FR-005**: The system MUST provide clear validation and error messages for incorrect data entry (e.g., non-numeric input in a currency field).
 - **FR-006**: The system MUST default the salary record to the current month and year, but allow the user to change this period.
+- **FR-007**: The system MUST allow authenticated users to export all their salary records to a basic CSV format.
+
+## Clarifications
+
+### Session 2026-01-05
+- Q: What should happen if a user attempts to create a SalaryRecord for a month/year that already exists? → A: If a record exists, the system should allow the user to explicitly UPDATE the existing record. If no record exists, create a new one.
+- Q: Are there any specific features or functionalities that are explicitly out of scope for the initial release (e.g., reporting, budgeting, multi-currency support)? → A: No reporting, budgeting, or multi-currency support in the initial release.
+- Q: What are the expected maximum number of SalaryRecord entries per user over their lifetime? (e.g., 5 years * 12 months = 60 records). → A: 120 records per user (10 years of data).
+- Q: What are the target uptime and recovery time objectives (RTO/RPO) for the application? (e.g., 99.9% uptime, RPO < 1 hour). → A: 99.9% uptime, RPO < 24 hours.
+- Q: Is there a requirement for users to import or export their salary data (e.g., CSV, PDF)? → A: Yes, provide basic CSV export for all salary records.
 
 ### Non-Functional Requirements (Constitution-Driven)
 - **NFR-001 (Performance)**: The salary data form must load in under 2 seconds. Saved data should be retrievable in under 1 second.
 - **NFR-002 (Accessibility)**: The application UI must be fully keyboard navigable and compliant with WCAG 2.1 AA standards.
 - **NFR-003 (Security)**: All user passwords MUST be securely hashed and salted. All sensitive salary data MUST be encrypted at rest and in transit.
 - **NFR-004 (Observability)**: The system MUST log key events such as user login, record creation, and record updates for monitoring and auditing purposes.
+- **NFR-005 (Reliability & Availability)**: The application MUST target 99.9% uptime and a Recovery Point Objective (RPO) of less than 24 hours.
 
 ### Key Entities *(include if feature involves data)*
 - **User**: Represents a registered user of the application. Attributes include a unique username and a hashed password.
 - **SalaryRecord**: Represents the complete salary details for a specific user for a specific month and year. It is associated with one User and contains all the fields from the feature description.
+    - **Data Volume**: Expected maximum of 120 records per user (approx. 10 years of data).
 
 ### Technical Design
 - **Component Breakdown**:
@@ -85,3 +97,13 @@ As a logged-in user, I want to view a list of my past salary records and inspect
 - **SC-002**: 95% of users can successfully save a salary form on their first attempt without encountering a validation error.
 - **SC-003**: The system must successfully handle 100 concurrent users creating and reading records with an average API response time below 500ms.
 - **SC-004**: Data retrieved from the system must have a 100% accuracy rate compared to the data that was input by the user.
+
+## Out of Scope
+
+- **Initial Release**: Reporting, budgeting, and multi-currency support are explicitly out of scope for the initial release.
+
+## Clarifications
+
+### Session 2026-01-05
+- Q: What should happen if a user attempts to create a SalaryRecord for a month/year that already exists? → A: If a record exists, the system should allow the user to explicitly UPDATE the existing record. If no record exists, create a new one.
+- Q: Are there any specific features or functionalities that are explicitly out of scope for the initial release (e.g., reporting, budgeting, multi-currency support)? → A: No reporting, budgeting, or multi-currency support in the initial release.
