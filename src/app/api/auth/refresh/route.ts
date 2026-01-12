@@ -11,9 +11,13 @@ import {
 } from "@/lib/refresh-token";
 import prisma from "@/lib/prisma";
 import { logger } from "@/lib/logger";
-import { authRateLimiter, AuthRateLimitOptions } from "@/lib/rate-limiter"; // Import the rate limiter
+import { authRateLimiter, AuthRateLimitOptions } from "@/lib/rate-limiter";
+import { LoginResponse } from "@/lib/types/auth";
+import { ApiErrorResponse } from "@/lib/types/common";
 
-export async function POST(request: NextRequest) {
+export async function POST(
+  request: NextRequest
+): Promise<NextResponse<LoginResponse | ApiErrorResponse>> {
   // Apply rate limiting
   const ip =
     request.headers.get("x-forwarded-for") ||
@@ -30,7 +34,7 @@ export async function POST(request: NextRequest) {
       {
         message: `Too many requests. Please try again after ${retryAfter} seconds.`,
       },
-      { status: 429, headers: { "Retry-After": retryAfter.toString() } },
+      { status: 429, headers: { "Retry-After": retryAfter.toString() } }
     );
   }
 
@@ -43,7 +47,7 @@ export async function POST(request: NextRequest) {
       });
       return NextResponse.json(
         { message: "Refresh token missing" },
-        { status: 403 },
+        { status: 403 }
       );
     }
 
@@ -54,15 +58,18 @@ export async function POST(request: NextRequest) {
       const message = error instanceof Error ? error.message : String(error);
       logger.warn(
         `Invalid refresh token signature for token: ${refreshTokenCookie} - ${message}`,
-        { context: "Auth/Refresh" },
+        { context: "Auth/Refresh" }
       );
       return NextResponse.json(
         { message: "Invalid refresh token" },
-        { status: 403 },
+        { status: 403 }
       );
     }
 
-    const storedRefreshToken = await getRefreshToken(refreshTokenCookie, decodedRefreshToken.userId);
+    const storedRefreshToken = await getRefreshToken(
+      refreshTokenCookie,
+      decodedRefreshToken.userId
+    );
 
     if (
       !storedRefreshToken ||
@@ -70,7 +77,7 @@ export async function POST(request: NextRequest) {
     ) {
       logger.warn(
         `Refresh token reuse attempt or invalid token for userId: ${decodedRefreshToken.userId}`,
-        { context: "Auth/Refresh", userId: decodedRefreshToken.userId },
+        { context: "Auth/Refresh", userId: decodedRefreshToken.userId }
       );
       if (decodedRefreshToken.userId) {
         // Invalidate all refresh tokens for this user for security
@@ -80,40 +87,51 @@ export async function POST(request: NextRequest) {
         });
         logger.info(
           `Invalidated all refresh tokens for userId: ${decodedRefreshToken.userId} due to suspicious activity`,
-          { context: "Auth/Refresh", userId: decodedRefreshToken.userId },
+          { context: "Auth/Refresh", userId: decodedRefreshToken.userId }
         );
       }
       return NextResponse.json(
         { message: "Invalid or revoked refresh token" },
-        { status: 403 },
+        { status: 403 }
       );
     }
 
     await revokeRefreshToken(refreshTokenCookie); // Revoke the old refresh token
     logger.info(
       `Old refresh token revoked for userId: ${decodedRefreshToken.userId}`,
-      { context: "Auth/Refresh", userId: decodedRefreshToken.userId },
+      { context: "Auth/Refresh", userId: decodedRefreshToken.userId }
     );
 
+    const user = await prisma.user.findUnique({
+      where: { id: decodedRefreshToken.userId },
+    });
+
+    if (!user) {
+      logger.warn(
+        `Refresh token used for non-existent userId: ${decodedRefreshToken.userId}`,
+        { context: "Auth/Refresh", userId: decodedRefreshToken.userId }
+      );
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
+    }
     const newAccessToken = generateAccessToken(decodedRefreshToken.userId);
     const newRefreshToken = generateRefreshToken(decodedRefreshToken.userId);
 
     const newRefreshTokenExpiresAt = new Date(
-      Date.now() + 7 * 24 * 60 * 60 * 1000,
+      Date.now() + 7 * 24 * 60 * 60 * 1000
     );
     await createRefreshToken(
       decodedRefreshToken.userId,
       newRefreshToken,
-      newRefreshTokenExpiresAt,
+      newRefreshTokenExpiresAt
     );
     logger.info(
       `New refresh token created for userId: ${decodedRefreshToken.userId}`,
-      { context: "Auth/Refresh", userId: decodedRefreshToken.userId },
+      { context: "Auth/Refresh", userId: decodedRefreshToken.userId }
     );
 
     const response = NextResponse.json(
-      { accessToken: newAccessToken },
-      { status: 200 },
+      { accessToken: newAccessToken, user },
+      { status: 200 }
     );
 
     response.cookies.set("refreshToken", newRefreshToken, {
@@ -126,7 +144,7 @@ export async function POST(request: NextRequest) {
 
     logger.info(
       `Access token refreshed successfully for userId: ${decodedRefreshToken.userId}`,
-      { context: "Auth/Refresh", userId: decodedRefreshToken.userId },
+      { context: "Auth/Refresh", userId: decodedRefreshToken.userId }
     );
     return response;
   } catch (error) {
@@ -137,7 +155,7 @@ export async function POST(request: NextRequest) {
     });
     return NextResponse.json(
       { message: "Failed to refresh token" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

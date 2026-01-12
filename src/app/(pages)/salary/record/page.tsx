@@ -6,45 +6,33 @@ import SalaryForm from "@/components/SalaryForm";
 import { useAuth } from "@/lib/auth-context";
 import { Alert, Container, Box, Button } from "@mui/material";
 import { SalaryRecord } from "@prisma/client";
+import { apiClient } from "@/lib/api-client";
+import axios from "axios";
+import { ApiErrorResponse } from "@/lib/types/common";
 
 export default function RecordSalaryPage() {
   const router = useRouter();
-  const { accessToken, user } = useAuth();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
   const handleSubmit = async (formData: Partial<SalaryRecord>) => {
-    if (!accessToken) {
-      setError("You must be logged in to record salary.");
-      return;
-    }
-
     setLoading(true);
     setError(null);
     setSuccess(null);
 
     try {
-      const response = await fetch("/api/salary", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.message || "Failed to record salary.");
-        return;
-      }
-
+      await apiClient.post<SalaryRecord>("/api/salary", formData);
       setSuccess("Salary record created successfully!");
       // Optionally redirect or clear form
       // router.push('/history')
     } catch (err) {
+      if (axios.isAxiosError(err) && err.response) {
+        const data = err.response.data as ApiErrorResponse;
+        setError(data.message || "Failed to record salary.");
+        return;
+      }
       setError("Network error or server unavailable.");
       console.error("Record salary client-side error:", err);
     } finally {

@@ -7,9 +7,13 @@ import {
 } from "@/lib/auth";
 import { createRefreshToken } from "@/lib/refresh-token";
 import { logger } from "@/lib/logger";
-import { authRateLimiter, AuthRateLimitOptions } from "@/lib/rate-limiter"; // Import the rate limiter
+import { authRateLimiter, AuthRateLimitOptions } from "@/lib/rate-limiter";
+import { LoginResponse } from "@/lib/types/auth";
+import { ApiErrorResponse } from "@/lib/types/common";
 
-export async function POST(request: NextRequest) {
+export async function POST(
+  request: NextRequest
+): Promise<NextResponse<LoginResponse | ApiErrorResponse>> {
   // Changed Request to NextRequest
   // Apply rate limiting
   const ip =
@@ -27,7 +31,7 @@ export async function POST(request: NextRequest) {
       {
         message: `Too many requests. Please try again after ${retryAfter} seconds.`,
       },
-      { status: 429, headers: { "Retry-After": retryAfter.toString() } },
+      { status: 429, headers: { "Retry-After": retryAfter.toString() } }
     );
   }
 
@@ -40,7 +44,7 @@ export async function POST(request: NextRequest) {
       });
       return NextResponse.json(
         { message: "Username and password are required" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -51,11 +55,11 @@ export async function POST(request: NextRequest) {
     if (!user) {
       logger.warn(
         `Login attempt with invalid credentials for username: ${username}`,
-        { context: "Auth" },
+        { context: "Auth" }
       );
       return NextResponse.json(
         { message: "Invalid credentials" },
-        { status: 401 },
+        { status: 401 }
       );
     }
 
@@ -64,11 +68,11 @@ export async function POST(request: NextRequest) {
     if (!passwordMatch) {
       logger.warn(
         `Login attempt with invalid credentials for username: ${username}`,
-        { context: "Auth" },
+        { context: "Auth" }
       );
       return NextResponse.json(
         { message: "Invalid credentials" },
-        { status: 401 },
+        { status: 401 }
       );
     }
 
@@ -76,7 +80,7 @@ export async function POST(request: NextRequest) {
     const refreshToken = generateRefreshToken(user.id);
 
     const refreshTokenExpiresAt = new Date(
-      Date.now() + 7 * 24 * 60 * 60 * 1000,
+      Date.now() + 7 * 24 * 60 * 60 * 1000
     );
 
     await createRefreshToken(user.id, refreshToken, refreshTokenExpiresAt);
@@ -90,7 +94,7 @@ export async function POST(request: NextRequest) {
 
     const response = NextResponse.json(
       { accessToken, user: userResponse },
-      { status: 200 },
+      { status: 200 }
     );
 
     response.cookies.set("refreshToken", refreshToken, {
@@ -114,7 +118,7 @@ export async function POST(request: NextRequest) {
     });
     return NextResponse.json(
       { message: "Something went wrong" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

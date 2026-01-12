@@ -121,7 +121,7 @@ export async function proxy(request: NextRequest) {
     { context: "Middleware" }
   );
   const loginUrl = new URL("/auth/login", request.url);
-  loginUrl.searchParams.set("callbackUrl", request.nextUrl.pathname);
+  loginUrl.searchParams.set("redirectTo", request.nextUrl.pathname);
   const response = NextResponse.redirect(loginUrl);
   response.cookies.delete("refreshToken");
   return response;

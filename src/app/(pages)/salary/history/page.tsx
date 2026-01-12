@@ -1,14 +1,17 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Container, Typography, Box, Alert, Button } from "@mui/material";
 import SalaryHistoryList from "@/components/SalaryHistoryList";
 import { useAuth } from "@/lib/auth-context";
 import { SalaryRecord } from "@prisma/client";
 import { useRouter } from "next/navigation";
+import { apiClient } from "@/lib/api-client";
+import axios from "axios";
+import { ApiErrorResponse } from "@/lib/types/common";
 
 export default function SalaryHistoryPage() {
-  const { accessToken, user } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
   const [salaryRecords, setSalaryRecords] = useState<SalaryRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -16,29 +19,15 @@ export default function SalaryHistoryPage() {
 
   useEffect(() => {
     async function fetchSalaryRecords() {
-      if (!accessToken) {
-        setLoading(false);
-        setError("Authentication token not found. Please log in.");
-        return;
-      }
-
       try {
-        const response = await fetch("/api/salary", {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          setError(errorData.message || "Failed to fetch salary records.");
-          setSalaryRecords([]);
+        const response = await apiClient.get<SalaryRecord[]>("/api/salary");
+        setSalaryRecords(response.data);
+      } catch (err) {
+        if (axios.isAxiosError(err) && err.response) {
+          const data = err.response.data as ApiErrorResponse;
+          setError(data.message || "Failed to fetch salary records.");
           return;
         }
-
-        const data: SalaryRecord[] = await response.json();
-        setSalaryRecords(data);
-      } catch (err) {
         setError("Network error or server unavailable.");
         console.error("Fetch salary records client-side error:", err);
       } finally {
@@ -53,35 +42,22 @@ export default function SalaryHistoryPage() {
       setLoading(false);
       setError("Please log in to view your salary history.");
     }
-  }, [accessToken, user]);
+  }, [user]);
 
   const handleDelete = async (recordId: string) => {
-    if (!accessToken) {
-      setError(
-        "Authentication token not found. Please log in to delete records.",
-      );
-      return;
-    }
     if (window.confirm("Are you sure you want to delete this salary record?")) {
       try {
-        const response = await fetch(`/api/salary/${recordId}`, {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          setError(errorData.message || "Failed to delete salary record.");
-          return;
-        }
-
+        await apiClient.delete(`/api/salary/${recordId}`);
         // Remove the deleted record from the list
         setSalaryRecords((prevRecords) =>
-          prevRecords.filter((record) => record.id !== recordId),
+          prevRecords.filter((record) => record.id !== recordId)
         );
       } catch (err) {
+        if (axios.isAxiosError(err) && err.response) {
+          const data = err.response.data as ApiErrorResponse;
+          setError(data.message || "Failed to delete salary record.");
+          return;
+        }
         setError("Network error or server unavailable.");
         console.error("Delete salary record client-side error:", err);
       }

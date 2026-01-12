@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   Typography,
@@ -14,6 +14,9 @@ import { useAuth } from "@/lib/auth-context";
 import SalaryDetailView from "@/components/SalaryDetailView";
 import SalaryForm from "@/components/SalaryForm";
 import { SalaryRecord } from "@prisma/client";
+import { apiClient } from "@/lib/api-client";
+import { ApiErrorResponse } from "@/lib/types/common";
+import axios from "axios";
 
 interface SalaryDetailPageProps {
   params: { recordId: string };
@@ -21,7 +24,7 @@ interface SalaryDetailPageProps {
 
 export default function SalaryDetailPage({ params }: SalaryDetailPageProps) {
   const { recordId } = params;
-  const { accessToken, user } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
   const [salaryRecord, setSalaryRecord] = useState<SalaryRecord | null>(null);
   const [loading, setLoading] = useState(true);
@@ -30,11 +33,6 @@ export default function SalaryDetailPage({ params }: SalaryDetailPageProps) {
 
   useEffect(() => {
     async function fetchSalaryRecord() {
-      if (!accessToken) {
-        setLoading(false);
-        setError("Authentication token not found. Please log in.");
-        return;
-      }
       if (!recordId) {
         setLoading(false);
         setError("Salary record ID is missing.");
@@ -42,22 +40,17 @@ export default function SalaryDetailPage({ params }: SalaryDetailPageProps) {
       }
 
       try {
-        const response = await fetch(`/api/salary/${recordId}`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          setError(errorData.message || "Failed to fetch salary record.");
+        const response = await apiClient.get<SalaryRecord>(
+          `/api/salary/${recordId}`
+        );
+        setSalaryRecord(response.data);
+      } catch (err) {
+        if (axios.isAxiosError(err) && err.response) {
+          const data = err.response.data as ApiErrorResponse;
+          setError(data.message || "Failed to fetch salary record.");
           setSalaryRecord(null);
           return;
         }
-
-        const data: SalaryRecord = await response.json();
-        setSalaryRecord(data);
-      } catch (err) {
         setError("Network error or server unavailable.");
         console.error("Fetch salary record client-side error:", err);
       } finally {
@@ -71,13 +64,9 @@ export default function SalaryDetailPage({ params }: SalaryDetailPageProps) {
       setLoading(false);
       setError("Please log in to view salary details.");
     }
-  }, [accessToken, user, recordId]);
+  }, [user, recordId]);
 
   const handleUpdate = async (formData: Partial<SalaryRecord>) => {
-    if (!accessToken) {
-      setError("You must be logged in to update salary.");
-      return;
-    }
     if (!recordId) {
       setError("Salary record ID is missing for update.");
       return;
@@ -87,25 +76,18 @@ export default function SalaryDetailPage({ params }: SalaryDetailPageProps) {
     setError(null);
 
     try {
-      const response = await fetch(`/api/salary/${recordId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
+      const response = await apiClient.put<SalaryRecord>(
+        `/api/salary/${recordId}`,
+        formData
+      );
+      setSalaryRecord(response.data); // Update local state with the new record
+      setIsEditing(false); // Exit edit mode
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response) {
+        const data = err.response.data as ApiErrorResponse;
         setError(data.message || "Failed to update salary record.");
         return;
       }
-
-      setSalaryRecord(data); // Update local state with the new record
-      setIsEditing(false); // Exit edit mode
-    } catch (err) {
       setError("Network error or server unavailable.");
       console.error("Update salary record client-side error:", err);
     } finally {

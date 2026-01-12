@@ -1,13 +1,15 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import RegistrationForm from "@/components/RegistrationForm";
+import { useAuth } from "@/lib/auth-context";
+import axios from "axios";
+import { ApiErrorResponse } from "@/lib/types/common";
 
 export default function RegisterPage() {
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { login } = useAuth();
 
   const handleRegister = async (credentials: {
     username: string;
@@ -16,25 +18,24 @@ export default function RegisterPage() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
+      const response = await axios.post("/api/auth/register", credentials, {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(credentials),
       });
 
-      const data = await response.json();
+      const data = response.data;
 
-      if (!response.ok) {
+      // Automatically log in after successful registration
+      login(data.accessToken, data.user);
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response) {
+        const data = err.response.data as ApiErrorResponse;
         setError(data.message || "Registration failed");
         return;
       }
 
-      // Automatically log in after successful registration or redirect to login page
-      // For now, redirect to login page
-      router.push("/auth/login?registered=true");
-    } catch (err) {
+      // Fallback for non-Axios errors
       setError("Network error or server unavailable");
       console.error("Registration client-side error:", err);
     } finally {

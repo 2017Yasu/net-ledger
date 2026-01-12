@@ -3,14 +3,16 @@ import { createContext, useContext } from "react";
 export interface AuthContextType {
   user: { id: string; username: string } | null;
   accessToken: string | null;
-  login: (accessToken: string, user: { id: string; username: string }) => void;
+  login: (
+    accessToken: string,
+    user: { id: string; username: string },
+    redirectTo?: string
+  ) => void;
   logout: () => void;
-  updateAccessToken: (newAccessToken: string) => void; // New function
-  loading: boolean;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(
-  undefined,
+  undefined
 );
 
 export const useAuth = () => {

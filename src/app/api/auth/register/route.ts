@@ -7,8 +7,12 @@ import {
 } from "@/lib/auth"; // Updated imports
 import { createRefreshToken } from "@/lib/refresh-token"; // Import createRefreshToken
 import { logger } from "@/lib/logger"; // Import logger for consistency
+import { LoginResponse } from "@/lib/types/auth";
+import { ApiErrorResponse } from "@/lib/types/common";
 
-export async function POST(request: Request) {
+export async function POST(
+  request: Request
+): Promise<NextResponse<LoginResponse | ApiErrorResponse>> {
   try {
     const { username, password } = await request.json();
 
@@ -18,7 +22,7 @@ export async function POST(request: Request) {
       });
       return NextResponse.json(
         { message: "Username and password are required" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -32,7 +36,7 @@ export async function POST(request: Request) {
       });
       return NextResponse.json(
         { message: "Username already taken" },
-        { status: 409 },
+        { status: 409 }
       );
     }
 
@@ -50,7 +54,7 @@ export async function POST(request: Request) {
 
     // Calculate refresh token expiration (e.g., 7 days from now)
     const refreshTokenExpiresAt = new Date(
-      Date.now() + 7 * 24 * 60 * 60 * 1000,
+      Date.now() + 7 * 24 * 60 * 60 * 1000
     ); // 7 days in milliseconds
 
     // Store refresh token in the database
@@ -66,7 +70,7 @@ export async function POST(request: Request) {
 
     const response = NextResponse.json(
       { accessToken, user: userResponse },
-      { status: 201 },
+      { status: 201 }
     );
 
     // Set refresh token as an HTTP-only cookie
@@ -89,11 +93,11 @@ export async function POST(request: Request) {
       {
         context: "Auth/Register",
         error: error instanceof Error ? error.message : "Unknown error type",
-      },
+      }
     );
     return NextResponse.json(
       { message: "Something went wrong" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

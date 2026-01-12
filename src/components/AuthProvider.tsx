@@ -2,56 +2,80 @@
 
 import { AuthContext } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
-import { ReactNode, useEffect, useState } from "react";
-import axios from "axios"; // Import axios
+import { ReactNode, useCallback, useEffect, useState } from "react";
+import { apiClient, authTokenStore } from "@/lib/api-client";
+import axios from "axios";
+import { LoginResponse } from "@/lib/types/auth";
+import { CircularProgress } from "@mui/material";
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<{ id: string; username: string } | null>(
-    null,
+    null
   );
-  const [accessToken, setAccessToken] = useState<string | null>(null); // State for access token in memory
+  const [accessToken, setAccessToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    // Access token should not persist in client-side storage (cookies/localStorage)
-    // On initial load, assume no active access token.
-    // The presence of a valid refresh token (HTTP-only cookie) will be checked by API routes
-    // and trigger a refresh if needed for seamless session.
-    setLoading(false); // Set loading to false once initial check is done
+  const updateAccessToken = useCallback((newAccessToken: string | null) => {
+    setAccessToken(newAccessToken);
+    authTokenStore.set(newAccessToken);
   }, []);
 
-  const login = (
-    newAccessToken: string,
-    newUser: { id: string; username: string },
-  ) => {
-    setAccessToken(newAccessToken); // Store access token in memory
-    setUser(newUser);
-    router.push("/dashboard");
-  };
+  const login = useCallback(
+    (
+      newAccessToken: string,
+      newUser: { id: string; username: string },
+      redirectTo?: string
+    ) => {
+      updateAccessToken(newAccessToken);
+      setUser(newUser);
+      router.push(redirectTo ?? "/dashboard");
+    },
+    [router, updateAccessToken]
+  );
 
-  const logout = async () => {
-    // Make logout async
+  const logout = useCallback(async () => {
     try {
-      await axios.post("/api/auth/logout"); // Call logout API
+      await apiClient.post("/api/auth/logout"); // Call logout API
     } catch (error) {
       console.error("Logout API call failed:", error);
       // Even if API call fails, clear client-side state for UX
     } finally {
-      setAccessToken(null);
+      updateAccessToken(null);
       setUser(null);
       router.push("/auth/login");
     }
-  };
+  }, [router, updateAccessToken]);
 
-  const updateAccessToken = (newAccessToken: string) => {
-    setAccessToken(newAccessToken);
-  };
+  useEffect(() => {
+    // Check if refresh token exists and try to refresh access token
+    async function initializeAuth() {
+      const storedToken = authTokenStore.get();
+      if (!storedToken) {
+        try {
+          const response = await axios.post<LoginResponse>("/api/auth/refresh");
+
+          updateAccessToken(response.data.accessToken);
+          setUser(response.data.user);
+        } catch (error) {
+          console.error("Failed to refresh access token:", error);
+          updateAccessToken(null);
+          setUser(null);
+        }
+      }
+      setLoading(false);
+    }
+
+    initializeAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (loading) {
+    return <CircularProgress />;
+  }
 
   return (
-    <AuthContext.Provider
-      value={{ user, accessToken, login, logout, updateAccessToken, loading }}
-    >
+    <AuthContext.Provider value={{ user, accessToken, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
