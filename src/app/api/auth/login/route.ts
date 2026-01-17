@@ -12,7 +12,7 @@ import { LoginResponse } from "@/lib/types/auth";
 import { ApiErrorResponse } from "@/lib/types/common";
 
 export async function POST(
-  request: NextRequest
+  request: NextRequest,
 ): Promise<NextResponse<LoginResponse | ApiErrorResponse>> {
   // Changed Request to NextRequest
   // Apply rate limiting
@@ -31,7 +31,7 @@ export async function POST(
       {
         message: `Too many requests. Please try again after ${retryAfter} seconds.`,
       },
-      { status: 429, headers: { "Retry-After": retryAfter.toString() } }
+      { status: 429, headers: { "Retry-After": retryAfter.toString() } },
     );
   }
 
@@ -44,7 +44,7 @@ export async function POST(
       });
       return NextResponse.json(
         { message: "Username and password are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -55,11 +55,11 @@ export async function POST(
     if (!user) {
       logger.warn(
         `Login attempt with invalid credentials for username: ${username}`,
-        { context: "Auth" }
+        { context: "Auth" },
       );
       return NextResponse.json(
         { message: "Invalid credentials" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -68,11 +68,11 @@ export async function POST(
     if (!passwordMatch) {
       logger.warn(
         `Login attempt with invalid credentials for username: ${username}`,
-        { context: "Auth" }
+        { context: "Auth" },
       );
       return NextResponse.json(
         { message: "Invalid credentials" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -80,7 +80,7 @@ export async function POST(
     const refreshToken = generateRefreshToken(user.id);
 
     const refreshTokenExpiresAt = new Date(
-      Date.now() + 7 * 24 * 60 * 60 * 1000
+      Date.now() + 7 * 24 * 60 * 60 * 1000,
     );
 
     await createRefreshToken(user.id, refreshToken, refreshTokenExpiresAt);
@@ -94,7 +94,7 @@ export async function POST(
 
     const response = NextResponse.json(
       { accessToken, user: userResponse },
-      { status: 200 }
+      { status: 200 },
     );
 
     response.cookies.set("refreshToken", refreshToken, {
@@ -118,7 +118,7 @@ export async function POST(
     });
     return NextResponse.json(
       { message: "Something went wrong" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

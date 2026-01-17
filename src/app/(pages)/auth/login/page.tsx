@@ -16,7 +16,7 @@ export default function LoginPage() {
 
   const redirectTo = useMemo(
     () => searchParams.get("redirectTo") || undefined,
-    [searchParams]
+    [searchParams],
   );
 
   const handleLogin = useCallback(
@@ -31,7 +31,7 @@ export default function LoginPage() {
             headers: {
               "Content-Type": "application/json",
             },
-          }
+          },
         );
         const data = response.data;
 
@@ -50,7 +50,7 @@ export default function LoginPage() {
         setLoading(false);
       }
     },
-    [login, redirectTo]
+    [login, redirectTo],
   );
 
   return <LoginForm onSubmit={handleLogin} loading={loading} error={error} />;

@@ -6,13 +6,13 @@ export interface AuthContextType {
   login: (
     accessToken: string,
     user: { id: string; username: string },
-    redirectTo?: string
+    redirectTo?: string,
   ) => void;
   logout: () => void;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export const useAuth = () => {

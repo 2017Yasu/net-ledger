@@ -50,7 +50,7 @@ export default function SalaryHistoryPage() {
         await apiClient.delete(`/api/salary/${recordId}`);
         // Remove the deleted record from the list
         setSalaryRecords((prevRecords) =>
-          prevRecords.filter((record) => record.id !== recordId)
+          prevRecords.filter((record) => record.id !== recordId),
         );
       } catch (err) {
         if (axios.isAxiosError(err) && err.response) {

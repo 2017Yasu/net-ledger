@@ -41,7 +41,7 @@ export default function SalaryDetailPage({ params }: SalaryDetailPageProps) {
 
       try {
         const response = await apiClient.get<SalaryRecord>(
-          `/api/salary/${recordId}`
+          `/api/salary/${recordId}`,
         );
         setSalaryRecord(response.data);
       } catch (err) {
@@ -78,7 +78,7 @@ export default function SalaryDetailPage({ params }: SalaryDetailPageProps) {
     try {
       const response = await apiClient.put<SalaryRecord>(
         `/api/salary/${recordId}`,
-        formData
+        formData,
       );
       setSalaryRecord(response.data); // Update local state with the new record
       setIsEditing(false); // Exit edit mode

@@ -4,18 +4,22 @@ import { getUserIdFromRequest } from "@/lib/server-auth";
 import { Prisma } from "@prisma/client";
 import { validateSalaryRecordData } from "@/lib/validation"; // Import the new validation utility
 
-interface RouteContext {
-  params: { recordId: string };
+interface RouteParams {
+  recordId: string;
 }
 
-export async function GET(request: NextRequest, context: RouteContext) {
+export async function GET(
+  request: NextRequest,
+  context: { params: Promise<RouteParams> },
+) {
   try {
+    const { recordId } = await context.params; // Await params here
+
     const userId = getUserIdFromRequest(request);
     if (!userId) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { recordId } = context.params;
     if (!recordId) {
       return NextResponse.json(
         { message: "Record ID is required" },
@@ -50,14 +54,18 @@ export async function GET(request: NextRequest, context: RouteContext) {
   }
 }
 
-export async function PUT(request: NextRequest, context: RouteContext) {
+export async function PUT(
+  request: NextRequest,
+  context: { params: Promise<RouteParams> },
+) {
   try {
+    const { recordId } = await context.params; // Await params here
+
     const userId = getUserIdFromRequest(request);
     if (!userId) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { recordId } = context.params;
     if (!recordId) {
       return NextResponse.json(
         { message: "Record ID is required" },
@@ -198,14 +206,18 @@ export async function PUT(request: NextRequest, context: RouteContext) {
   }
 }
 
-export async function DELETE(request: NextRequest, context: RouteContext) {
+export async function DELETE(
+  request: NextRequest,
+  context: { params: Promise<RouteParams> },
+) {
   try {
+    const { recordId } = await context.params; // Await params here
+
     const userId = getUserIdFromRequest(request);
     if (!userId) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { recordId } = context.params;
     if (!recordId) {
       return NextResponse.json(
         { message: "Record ID is required" },

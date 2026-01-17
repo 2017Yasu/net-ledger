@@ -88,10 +88,10 @@ const SalaryHistoryList: React.FC<SalaryHistoryListProps> = ({
                 primary={
                   <Typography variant="h6">
                     {record.month}/{record.year} - Net: $
-                    {record.netPay.toFixed(2)}
+                    {Number(record.netPay || 0).toFixed(2)}
                   </Typography>
                 }
-                secondary={`Gross: $${record.grossEarnings.toFixed(2)}, Base: $${record.baseSalary.toFixed(2)}`}
+                secondary={`Gross: $${Number(record.grossEarnings || 0).toFixed(2)}, Base: $${Number(record.baseSalary || 0).toFixed(2)}`}
               />
             </Link>
           </ListItem>

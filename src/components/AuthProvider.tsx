@@ -10,7 +10,7 @@ import { CircularProgress } from "@mui/material";
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<{ id: string; username: string } | null>(
-    null
+    null,
   );
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -25,13 +25,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     (
       newAccessToken: string,
       newUser: { id: string; username: string },
-      redirectTo?: string
+      redirectTo?: string,
     ) => {
       updateAccessToken(newAccessToken);
       setUser(newUser);
       router.push(redirectTo ?? "/dashboard");
     },
-    [router, updateAccessToken]
+    [router, updateAccessToken],
   );
 
   const logout = useCallback(async () => {

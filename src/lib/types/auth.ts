@@ -6,7 +6,7 @@ export interface User {
 }
 
 export interface AuthResponse {
-    accessToken: string;
+  accessToken: string;
 }
 
 export type LoginResponse = AuthResponse & {

@@ -44,7 +44,7 @@ export async function proxy(request: NextRequest) {
       const message = error instanceof Error ? error.message : String(error);
       logger.warn(
         `Invalid or expired access token for path: ${request.nextUrl.pathname}: ${message}`,
-        { context: "Middleware" }
+        { context: "Middleware" },
       );
       // Access token invalid/expired, proceed to check refresh token
     }
@@ -54,7 +54,10 @@ export async function proxy(request: NextRequest) {
   if (refreshTokenCookie) {
     try {
       const decodedRefreshToken = verifyRefreshToken(refreshTokenCookie);
-      const storedRefreshToken = await getRefreshToken(refreshTokenCookie, decodedRefreshToken.userId);
+      const storedRefreshToken = await getRefreshToken(
+        refreshTokenCookie,
+        decodedRefreshToken.userId,
+      );
 
       if (
         storedRefreshToken &&
@@ -62,31 +65,31 @@ export async function proxy(request: NextRequest) {
       ) {
         logger.info(
           `Valid refresh token found for userId: ${decodedRefreshToken.userId} for path: ${request.nextUrl.pathname}`,
-          { context: "Middleware", userId: decodedRefreshToken.userId }
+          { context: "Middleware", userId: decodedRefreshToken.userId },
         );
 
         await revokeRefreshToken(refreshTokenCookie); // Revoke old refresh token
         logger.info(
           `Old refresh token revoked for userId: ${decodedRefreshToken.userId} in middleware`,
-          { context: "Middleware", userId: decodedRefreshToken.userId }
+          { context: "Middleware", userId: decodedRefreshToken.userId },
         );
 
         const newAccessToken = generateAccessToken(decodedRefreshToken.userId);
         const newRefreshToken = generateRefreshToken(
-          decodedRefreshToken.userId
+          decodedRefreshToken.userId,
         );
 
         const newRefreshTokenExpiresAt = new Date(
-          Date.now() + 7 * 24 * 60 * 60 * 1000
+          Date.now() + 7 * 24 * 60 * 60 * 1000,
         );
         await createRefreshToken(
           decodedRefreshToken.userId,
           newRefreshToken,
-          newRefreshTokenExpiresAt
+          newRefreshTokenExpiresAt,
         );
         logger.info(
           `New access and refresh token generated for userId: ${decodedRefreshToken.userId} in middleware`,
-          { context: "Middleware", userId: decodedRefreshToken.userId }
+          { context: "Middleware", userId: decodedRefreshToken.userId },
         );
 
         const response = NextResponse.next();
@@ -102,14 +105,14 @@ export async function proxy(request: NextRequest) {
       } else {
         logger.warn(
           `Refresh token not found in DB or user mismatch for path: ${request.nextUrl.pathname}`,
-          { context: "Middleware", userId: decodedRefreshToken?.userId }
+          { context: "Middleware", userId: decodedRefreshToken?.userId },
         );
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       logger.error(
         `Refresh token validation failed in middleware for path: ${request.nextUrl.pathname}: ${message}`,
-        { context: "Middleware", error: message }
+        { context: "Middleware", error: message },
       );
       // Fall through to redirect to login
     }
@@ -118,7 +121,7 @@ export async function proxy(request: NextRequest) {
   // No valid access or refresh token, redirect to login
   logger.info(
     `Redirecting to login for unauthenticated access to path: ${request.nextUrl.pathname}`,
-    { context: "Middleware" }
+    { context: "Middleware" },
   );
   const loginUrl = new URL("/auth/login", request.url);
   loginUrl.searchParams.set("redirectTo", request.nextUrl.pathname);

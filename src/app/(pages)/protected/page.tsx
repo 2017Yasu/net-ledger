@@ -2,24 +2,26 @@
 
 import { useAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react"; // Import useState
 
 export default function ProtectedPage() {
-  const { accessToken, loading, user } = useAuth();
+  const { accessToken, user } = useAuth();
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true); // Introduce local loading state
 
   useEffect(() => {
-    if (!loading && !accessToken) {
+    if (!accessToken) {
       router.push("/auth/login");
     }
-  }, [accessToken, loading, router]);
+    setIsLoading(false); // eslint-disable-line react-hooks/set-state-in-effect
+  }, [accessToken, router]); // Remove 'loading' from dependencies
 
-  if (loading) {
+  if (isLoading) {
     return <div>Loading authentication status...</div>;
   }
 
   if (!accessToken) {
-    return null; // or a redirect message
+    return null; // or a redirect message, though router.push should handle this
   }
 
   return (

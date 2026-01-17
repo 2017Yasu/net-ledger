@@ -236,7 +236,9 @@ describe("SalaryRecord API Integration Tests", () => {
       const request = createMockRequest("PUT", updateData, mockToken, {
         recordId,
       });
-      const response = await updateSalaryPUT(request, { params: { recordId } });
+      const response = await updateSalaryPUT(request, {
+        params: Promise.resolve({ recordId }),
+      });
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -249,7 +251,9 @@ describe("SalaryRecord API Integration Tests", () => {
       const request = createMockRequest("PUT", updateData, undefined, {
         recordId,
       }); // No token
-      const response = await updateSalaryPUT(request, { params: { recordId } });
+      const response = await updateSalaryPUT(request, {
+        params: Promise.resolve({ recordId }),
+      });
       const data = await response.json();
 
       expect(response.status).toBe(401);
@@ -264,7 +268,9 @@ describe("SalaryRecord API Integration Tests", () => {
       const request = createMockRequest("PUT", updateData, mockToken, {
         recordId,
       });
-      const response = await updateSalaryPUT(request, { params: { recordId } });
+      const response = await updateSalaryPUT(request, {
+        params: Promise.resolve({ recordId }),
+      });
       const data = await response.json();
 
       expect(response.status).toBe(404);
@@ -282,7 +288,9 @@ describe("SalaryRecord API Integration Tests", () => {
       const request = createMockRequest("PUT", updateData, mockToken, {
         recordId,
       });
-      const response = await updateSalaryPUT(request, { params: { recordId } });
+      const response = await updateSalaryPUT(request, {
+        params: Promise.resolve({ recordId }),
+      });
       const data = await response.json();
 
       expect(response.status).toBe(403);
@@ -303,7 +311,9 @@ describe("SalaryRecord API Integration Tests", () => {
       const request = createMockRequest("PUT", invalidUpdate, mockToken, {
         recordId,
       });
-      const response = await updateSalaryPUT(request, { params: { recordId } });
+      const response = await updateSalaryPUT(request, {
+        params: Promise.resolve({ recordId }),
+      });
       const data = await response.json();
 
       expect(response.status).toBe(400);
@@ -333,7 +343,9 @@ describe("SalaryRecord API Integration Tests", () => {
       const request = createMockRequest("GET", undefined, mockToken, {
         recordId,
       });
-      const response = await getSalaryGET(request, { params: { recordId } });
+      const response = await getSalaryGET(request, {
+        params: Promise.resolve({ recordId }),
+      });
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -347,7 +359,9 @@ describe("SalaryRecord API Integration Tests", () => {
       const request = createMockRequest("GET", undefined, undefined, {
         recordId,
       }); // No token
-      const response = await getSalaryGET(request, { params: { recordId } });
+      const response = await getSalaryGET(request, {
+        params: Promise.resolve({ recordId }),
+      });
       const data = await response.json();
 
       expect(response.status).toBe(401);
@@ -362,7 +376,9 @@ describe("SalaryRecord API Integration Tests", () => {
       const request = createMockRequest("GET", undefined, mockToken, {
         recordId,
       });
-      const response = await getSalaryGET(request, { params: { recordId } });
+      const response = await getSalaryGET(request, {
+        params: Promise.resolve({ recordId }),
+      });
       const data = await response.json();
 
       expect(response.status).toBe(404);
@@ -380,7 +396,9 @@ describe("SalaryRecord API Integration Tests", () => {
       const request = createMockRequest("GET", undefined, mockToken, {
         recordId,
       });
-      const response = await getSalaryGET(request, { params: { recordId } });
+      const response = await getSalaryGET(request, {
+        params: Promise.resolve({ recordId }),
+      });
       const data = await response.json();
 
       expect(response.status).toBe(403);
@@ -414,7 +432,7 @@ describe("SalaryRecord API Integration Tests", () => {
         recordId,
       });
       const response = await deleteSalaryDELETE(request, {
-        params: { recordId },
+        params: Promise.resolve({ recordId }),
       });
 
       expect(response.status).toBe(204);
@@ -428,7 +446,7 @@ describe("SalaryRecord API Integration Tests", () => {
         recordId,
       }); // No token
       const response = await deleteSalaryDELETE(request, {
-        params: { recordId },
+        params: Promise.resolve({ recordId }),
       });
       const data = await response.json();
 
@@ -445,7 +463,7 @@ describe("SalaryRecord API Integration Tests", () => {
         recordId,
       });
       const response = await deleteSalaryDELETE(request, {
-        params: { recordId },
+        params: Promise.resolve({ recordId }),
       });
       const data = await response.json();
 
@@ -465,7 +483,7 @@ describe("SalaryRecord API Integration Tests", () => {
         recordId,
       });
       const response = await deleteSalaryDELETE(request, {
-        params: { recordId },
+        params: Promise.resolve({ recordId }),
       });
       const data = await response.json();
 
