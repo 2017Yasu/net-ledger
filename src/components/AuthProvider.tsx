@@ -6,7 +6,7 @@ import { ReactNode, useCallback, useEffect, useState } from "react";
 import { apiClient, authTokenStore } from "@/lib/api-client";
 import axios from "axios";
 import { LoginResponse } from "@/lib/types/auth";
-import { CircularProgress } from "@mui/material";
+import { Backdrop, CircularProgress } from "@mui/material";
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<{ id: string; username: string } | null>(
@@ -71,7 +71,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   if (loading) {
-    return <CircularProgress />;
+    return (
+      <Backdrop
+        open={true}
+        sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+    );
   }
 
   return (
