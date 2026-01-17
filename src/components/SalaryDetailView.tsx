@@ -3,6 +3,7 @@
 import React from "react";
 import { Paper, Typography, Grid, Divider, Box } from "@mui/material";
 import { SalaryRecord } from "@prisma/client";
+import { Decimal } from "@prisma/client/runtime/client";
 
 interface SalaryDetailViewProps {
   salaryRecord: SalaryRecord;
@@ -13,23 +14,29 @@ const SalaryDetailView: React.FC<SalaryDetailViewProps> = ({
 }) => {
   const renderDetailItem = (
     label: string,
-    value: string | number | null | undefined,
-  ) => (
-    <Box
-      display="grid"
-      gridTemplateColumns={{ sm: "1fr 1fr", xs: "1fr" }}
-      gap={2}
-    >
-      <Typography variant="subtitle2" color="text.secondary">
-        {label}
-      </Typography>
-      <Typography variant="body1">
-        {value !== null && value !== undefined && value !== ""
-          ? value.toString()
-          : "-"}
-      </Typography>
-    </Box>
-  );
+    value: string | number | Decimal | null | undefined,
+    digits?: number,
+  ) => {
+    let displayValue = "-";
+    if (typeof value === "number" || value instanceof Decimal) {
+      displayValue =
+        typeof digits === "number" ? value.toFixed(digits) : value.toString();
+    } else if (typeof value === "string") {
+      displayValue = value;
+    }
+    return (
+      <Box
+        display="grid"
+        gridTemplateColumns={{ sm: "1fr 1fr", xs: "1fr" }}
+        gap={2}
+      >
+        <Typography variant="subtitle2" color="text.secondary">
+          {label}
+        </Typography>
+        <Typography variant="body1">{displayValue}</Typography>
+      </Box>
+    );
+  };
 
   return (
     <Paper elevation={3} sx={{ p: 3, mt: 3 }}>
@@ -43,23 +50,23 @@ const SalaryDetailView: React.FC<SalaryDetailViewProps> = ({
           Earnings
         </Typography>
         <Grid container spacing={2}>
-          {renderDetailItem("Base Salary", salaryRecord.baseSalary.toFixed(2))}
+          {renderDetailItem("Base Salary", salaryRecord.baseSalary, 2)}
           {renderDetailItem(
             "Overtime Allowance",
-            salaryRecord.overtimeAllowance?.toFixed(2),
+            salaryRecord.overtimeAllowance,
+            2,
           )}
           {renderDetailItem(
             "Commuting Allowance",
-            salaryRecord.commutingAllowance?.toFixed(2),
+            salaryRecord.commutingAllowance,
+            2,
           )}
           {renderDetailItem(
             "Other Allowances",
-            salaryRecord.otherAllowances?.toFixed(2),
+            salaryRecord.otherAllowances,
+            2,
           )}
-          {renderDetailItem(
-            "Gross Earnings",
-            salaryRecord.grossEarnings.toFixed(2),
-          )}
+          {renderDetailItem("Gross Earnings", salaryRecord.grossEarnings, 2)}
         </Grid>
       </Box>
       <Divider sx={{ mb: 2 }} />
@@ -71,21 +78,17 @@ const SalaryDetailView: React.FC<SalaryDetailViewProps> = ({
         <Grid container spacing={2}>
           {renderDetailItem(
             "Social Insurance Contributions",
-            salaryRecord.socialInsuranceContributions?.toFixed(2),
+            salaryRecord.socialInsuranceContributions,
+            2,
           )}
-          {renderDetailItem(
-            "Taxable Amount",
-            salaryRecord.taxableAmount?.toFixed(2),
-          )}
-          {renderDetailItem("Income Tax", salaryRecord.incomeTax?.toFixed(2))}
-          {renderDetailItem(
-            "Resident Tax",
-            salaryRecord.residentTax?.toFixed(2),
-          )}
-          {renderDetailItem("Other Taxes", salaryRecord.otherTaxes?.toFixed(2))}
+          {renderDetailItem("Taxable Amount", salaryRecord.taxableAmount, 2)}
+          {renderDetailItem("Income Tax", salaryRecord.incomeTax, 2)}
+          {renderDetailItem("Resident Tax", salaryRecord.residentTax, 2)}
+          {renderDetailItem("Other Taxes", salaryRecord.otherTaxes, 2)}
           {renderDetailItem(
             "Total Deductions",
-            salaryRecord.totalDeductions?.toFixed(2),
+            salaryRecord.totalDeductions,
+            2,
           )}
         </Grid>
       </Box>
@@ -96,10 +99,11 @@ const SalaryDetailView: React.FC<SalaryDetailViewProps> = ({
           Net Pay & Adjustments
         </Typography>
         <Grid container spacing={2}>
-          {renderDetailItem("Net Pay", salaryRecord.netPay.toFixed(2))}
+          {renderDetailItem("Net Pay", salaryRecord.netPay, 2)}
           {renderDetailItem(
             "Year-End Tax Adjustment",
-            salaryRecord.yearEndTaxAdjustment?.toFixed(2),
+            salaryRecord.yearEndTaxAdjustment,
+            2,
           )}
         </Grid>
       </Box>

@@ -19,20 +19,34 @@ import { ApiErrorResponse } from "@/lib/types/common";
 import axios from "axios";
 
 interface SalaryDetailPageProps {
-  params: { recordId: string };
+  recordId: string;
 }
 
-export default function SalaryDetailPage({ params }: SalaryDetailPageProps) {
-  const { recordId } = params;
+export default function SalaryDetailPage({
+  params,
+}: {
+  params: Promise<SalaryDetailPageProps>;
+}) {
   const { user } = useAuth();
   const router = useRouter();
   const [salaryRecord, setSalaryRecord] = useState<SalaryRecord | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [recordId, setRecordId] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchParams() {
+      const resolvedParams = await params;
+      console.log("Resolved params:", resolvedParams);
+      setRecordId(resolvedParams.recordId);
+    }
+    fetchParams();
+  }, [params]);
 
   useEffect(() => {
     async function fetchSalaryRecord() {
+      console.log("Fetching salary record for ID:", recordId);
       if (!recordId) {
         setLoading(false);
         setError("Salary record ID is missing.");
@@ -64,6 +78,12 @@ export default function SalaryDetailPage({ params }: SalaryDetailPageProps) {
       setLoading(false);
       setError("Please log in to view salary details.");
     }
+    return () => {
+      setSalaryRecord(null);
+      setError(null);
+      setLoading(true);
+      setIsEditing(false);
+    };
   }, [user, recordId]);
 
   const handleUpdate = async (formData: Partial<SalaryRecord>) => {
