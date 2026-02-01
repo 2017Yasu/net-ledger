@@ -1,0 +1,1 @@
+The net-ledger project is a Next.js application designed to help users record and track their monthly salary information. Its primary feature is the "Salary Recorder," which handles attendance, earnings, and deductions.

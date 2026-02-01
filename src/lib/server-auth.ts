@@ -1,18 +1,27 @@
 import { NextRequest } from "next/server";
+import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies"; // Import ReadonlyRequestCookies
 import { verifyToken } from "./auth";
 
 /**
- * Extracts and verifies the access token from a NextRequest, returning the userId if valid.
- * This function is intended for server-side use, typically within API routes, to authenticate requests.
- * It checks for the access token in the 'token' cookie or the 'Authorization' header.
+ * Extracts and verifies the access token, returning the userId if valid.
+ * This function is intended for server-side use.
+ * It checks for the access token in the provided cookies or a NextRequest object's cookies/Authorization header.
  *
- * @param request The NextRequest object.
+ * @param source The NextRequest object or a ReadonlyRequestCookies object.
  * @returns The userId if the access token is valid, otherwise null.
  */
-export function getUserIdFromRequest(request: NextRequest): string | null {
-  const token =
-    request.cookies.get("token")?.value ||
-    request.headers.get("Authorization")?.split(" ")[1];
+export function getUserIdFromRequest(
+  source: NextRequest | { cookies: ReadonlyRequestCookies },
+): string | null {
+  let token: string | undefined;
+
+  if (source instanceof NextRequest) {
+    token =
+      source.cookies.get("token")?.value ||
+      source.headers.get("Authorization")?.split(" ")[1];
+  } else {
+    token = source.cookies.get("token")?.value;
+  }
 
   if (!token) {
     return null;

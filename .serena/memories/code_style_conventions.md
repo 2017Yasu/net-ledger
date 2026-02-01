@@ -1,0 +1,1 @@
+The project follows standard TypeScript and Node.js conventions. Code style is enforced using ESLint and Prettier. The `pnpm format` command (which runs `prettier --write .` and `eslint --fix .`) should be used to automatically format and fix linting issues. Type checking is performed using `tsc --noEmit`.
