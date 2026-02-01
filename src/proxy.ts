@@ -13,6 +13,10 @@ import {
   revokeRefreshToken,
 } from "./lib/refresh-token";
 
+import { getUserIdFromRequest } from "./lib/server-auth"; // Import getUserIdFromRequest
+
+const X_USER_ID_HEADER = "X-User-Id"; // Define custom header constant
+
 // Starting with Next.js 16, Middleware is now called Proxy to better reflect its purpose. The functionality remains the same.
 
 export async function proxy(request: NextRequest) {
@@ -29,17 +33,25 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const accessToken = request.headers.get("Authorization")?.split(" ")[1];
-  const refreshTokenCookie = request.cookies.get("refreshToken")?.value;
+  const userIdFromProxy = getUserIdFromRequest(request); // Get userId from the request (this is the original userId check)
+
+  // Redirect logged-in users from '/' to '/dashboard'
+  if (userIdFromProxy && request.nextUrl.pathname === "/") {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
+  let authenticatedUserId: string | null = null; // This will store the final authenticated userId
 
   // Option 1: Valid access token is present
+  const accessToken = request.headers.get("Authorization")?.split(" ")[1];
   if (accessToken) {
     try {
-      verifyToken(accessToken);
+      const decoded = verifyToken(accessToken);
+      authenticatedUserId = decoded.userId;
       logger.info(`Access token valid for path: ${request.nextUrl.pathname}`, {
         context: "Middleware",
+        userId: authenticatedUserId,
       });
-      return NextResponse.next();
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       logger.warn(
@@ -51,7 +63,9 @@ export async function proxy(request: NextRequest) {
   }
 
   // Option 2: No valid access token, check for refresh token
-  if (refreshTokenCookie) {
+  const refreshTokenCookie = request.cookies.get("refreshToken")?.value;
+  if (!authenticatedUserId && refreshTokenCookie) {
+    // Only try refresh if not already authenticated
     try {
       const decodedRefreshToken = verifyRefreshToken(refreshTokenCookie);
       const storedRefreshToken = await getRefreshToken(
@@ -92,6 +106,8 @@ export async function proxy(request: NextRequest) {
           { context: "Middleware", userId: decodedRefreshToken.userId },
         );
 
+        authenticatedUserId = decodedRefreshToken.userId; // Set authenticatedUserId after successful refresh
+
         const response = NextResponse.next();
         response.headers.set("Authorization", `Bearer ${newAccessToken}`);
         response.cookies.set("refreshToken", newRefreshToken, {
@@ -101,6 +117,7 @@ export async function proxy(request: NextRequest) {
           path: "/",
           maxAge: 7 * 24 * 60 * 60,
         });
+        response.headers.set(X_USER_ID_HEADER, authenticatedUserId); // Set custom header
         return response;
       } else {
         logger.warn(
@@ -118,16 +135,23 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // No valid access or refresh token, redirect to login
-  logger.info(
-    `Redirecting to login for unauthenticated access to path: ${request.nextUrl.pathname}`,
-    { context: "Middleware" },
-  );
-  const loginUrl = new URL("/auth/login", request.url);
-  loginUrl.searchParams.set("redirectTo", request.nextUrl.pathname);
-  const response = NextResponse.redirect(loginUrl);
-  response.cookies.delete("refreshToken");
-  return response;
+  // If authenticatedUserId is still null, means unauthenticated
+  if (authenticatedUserId) {
+    const response = NextResponse.next();
+    response.headers.set(X_USER_ID_HEADER, authenticatedUserId); // Set custom header for already authenticated user
+    return response;
+  } else {
+    // No valid access or refresh token, redirect to login
+    logger.info(
+      `Redirecting to login for unauthenticated access to path: ${request.nextUrl.pathname}`,
+      { context: "Middleware" },
+    );
+    const loginUrl = new URL("/auth/login", request.url);
+    loginUrl.searchParams.set("redirectTo", request.nextUrl.pathname);
+    const response = NextResponse.redirect(loginUrl);
+    response.cookies.delete("refreshToken");
+    return response;
+  }
 }
 
 export const config = {

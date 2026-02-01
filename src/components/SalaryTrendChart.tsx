@@ -1,3 +1,5 @@
+"use client";
+
 // src/components/SalaryTrendChart.tsx
 import React from "react";
 import {

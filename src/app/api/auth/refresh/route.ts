@@ -11,33 +11,12 @@ import {
 } from "@/lib/refresh-token";
 import prisma from "@/lib/prisma";
 import { logger } from "@/lib/logger";
-import { authRateLimiter, AuthRateLimitOptions } from "@/lib/rate-limiter";
 import { LoginResponse } from "@/lib/types/auth";
 import { ApiErrorResponse } from "@/lib/types/common";
 
 export async function POST(
   request: NextRequest,
 ): Promise<NextResponse<LoginResponse | ApiErrorResponse>> {
-  // Apply rate limiting
-  const ip =
-    request.headers.get("x-forwarded-for") ||
-    request.headers.get("x-real-ip") ||
-    "127.0.0.1";
-  try {
-    authRateLimiter.checkNext(request, 5); // 5 requests per minute
-  } catch {
-    logger.warn(`Rate limit exceeded for login attempt from IP: ${ip}`, {
-      context: "Auth/RateLimit",
-    });
-    const retryAfter = AuthRateLimitOptions.interval / 1000;
-    return NextResponse.json(
-      {
-        message: `Too many requests. Please try again after ${retryAfter} seconds.`,
-      },
-      { status: 429, headers: { "Retry-After": retryAfter.toString() } },
-    );
-  }
-
   try {
     const refreshTokenCookie = request.cookies.get("refreshToken")?.value;
 

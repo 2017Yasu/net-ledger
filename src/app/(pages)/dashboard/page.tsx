@@ -7,22 +7,12 @@ import { redirect } from "next/navigation";
 import SalarySummaryCard from "@/components/SalarySummaryCard";
 import SalaryTrendChart from "@/components/SalaryTrendChart";
 import { logger } from "@/lib/logger"; // Import the logger
-import { Prisma } from "@prisma/client"; // Import Prisma for types
 
 interface FormattedSalaryRecord {
   month: number;
   year: number;
   grossEarnings: number;
 }
-
-type SalaryRecordSelect = Prisma.SalaryRecordGetPayload<{
-  select: {
-    month: true;
-    year: true;
-    grossEarnings: true;
-    payDate: true;
-  };
-}>;
 
 const DashboardPage = async () => {
   const cookieStore = await cookies();
@@ -63,30 +53,47 @@ const DashboardPage = async () => {
     const twelveMonthsAgo = new Date();
     twelveMonthsAgo.setFullYear(today.getFullYear() - 1);
 
-    const rawSalaryHistory: SalaryRecordSelect[] =
-      await prisma.salaryRecord.findMany({
-        where: {
-          userId,
-          payDate: {
-            gte: twelveMonthsAgo,
-          },
-        },
-        orderBy: { year: "asc", month: "asc" },
-        select: { month: true, year: true, grossEarnings: true, payDate: true },
-      });
+    const rawSalaryHistory = await prisma.salaryRecord.findMany({
+      where: {
+        userId,
+        // filter by year and month instead of payDate due to type issues
+        // or filter after fetching if payDate filter is still problematic
+        // For now, removing payDate from where clause
+      },
+      orderBy: { year: "asc", month: "asc" },
+      select: {
+        month: true,
+        year: true,
+        grossEarnings: true /* removed payDate: true */,
+      },
+    });
 
-    salaryHistory = rawSalaryHistory.map((record: SalaryRecordSelect) => ({
+    // Client-side filtering if payDate filter was removed from Prisma query
+    const filteredSalaryHistory = rawSalaryHistory.filter((record) => {
+      const recordDate = new Date(record.year, record.month - 1, 1);
+      return recordDate >= twelveMonthsAgo;
+    });
+
+    salaryHistory = filteredSalaryHistory.map((record) => ({
       month: record.month,
       year: record.year,
       grossEarnings: record.grossEarnings.toNumber(),
     }));
   } catch (error: unknown) {
-    logger.error("Error fetching dashboard data", {
-      context: "DashboardPage",
-      userId,
-      error: error.message,
-      stack: error.stack,
-    });
+    if (error instanceof Error) {
+      logger.error("Error fetching dashboard data", {
+        context: "DashboardPage",
+        userId,
+        error: error.message,
+        stack: error.stack,
+      });
+    } else {
+      logger.error("Unknown error fetching dashboard data", {
+        context: "DashboardPage",
+        userId,
+        error: String(error),
+      });
+    }
     // Depending on error handling strategy, you might want to display a user-friendly error message
     // or redirect to an error page here. For now, we'll let the component render with empty data.
   }

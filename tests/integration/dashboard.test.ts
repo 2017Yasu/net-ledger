@@ -7,7 +7,8 @@ import { getUserIdFromRequest } from "@/lib/server-auth";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { mockDeep, mockReset } from "jest-mock-extended";
-import { User, SalaryRecord, PrismaClient, Decimal } from "@prisma/client";
+import { User, SalaryRecord } from "@prisma/client";
+import { PrismaClient, Decimal } from "../../__mocks__/@prisma/client";
 
 jest.mock("@/lib/prisma", () => ({
   prisma: mockDeep(),
@@ -27,11 +28,15 @@ jest.mock("next/navigation", () => ({
   }),
 }));
 
-const mockPrisma = prisma as unknown as ReturnType<typeof mockDeep> &
-  PrismaClient;
+const mockPrisma = {
+  salaryRecord: {
+    findFirst: jest.fn(),
+    findMany: jest.fn(),
+  },
+} as unknown as PrismaClient;
 const mockGetUserIdFromRequest = getUserIdFromRequest as jest.Mock;
 const mockCookies = cookies as jest.Mock;
-const mockRedirect = redirect as jest.Mock;
+const mockRedirect = redirect as unknown as jest.Mock;
 
 describe("DashboardPage Integration", () => {
   const mockUser: User = {
@@ -43,7 +48,8 @@ describe("DashboardPage Integration", () => {
   };
 
   beforeEach(() => {
-    mockReset(mockPrisma);
+    mockPrisma.salaryRecord.findFirst.mockReset();
+    mockPrisma.salaryRecord.findMany.mockReset();
     mockGetUserIdFromRequest.mockReset();
     mockCookies.mockReset();
     mockRedirect.mockReset();
@@ -92,10 +98,8 @@ describe("DashboardPage Integration", () => {
       paidTimeOffDaysUsed: null,
       paidTimeOffDaysRemaining: null,
     };
-    (mockPrisma.salaryRecord.findFirst as any).mockResolvedValueOnce(
-      mockSalaryRecord,
-    );
-    (mockPrisma.salaryRecord.findMany as any).mockResolvedValueOnce([]); // Mock findMany for the chart test
+    mockPrisma.salaryRecord.findFirst.mockResolvedValueOnce(mockSalaryRecord);
+    mockPrisma.salaryRecord.findMany.mockResolvedValueOnce([]); // Mock findMany for the chart test
 
     render(await DashboardPage());
 
@@ -109,8 +113,8 @@ describe("DashboardPage Integration", () => {
 
   it("displays message when no salary records are found", async () => {
     mockGetUserIdFromRequest.mockReturnValueOnce(mockUser.id);
-    (mockPrisma.salaryRecord.findFirst as any).mockResolvedValueOnce(null);
-    (mockPrisma.salaryRecord.findMany as any).mockResolvedValueOnce([]); // Mock findMany for the chart test
+    mockPrisma.salaryRecord.findFirst.mockResolvedValueOnce(null);
+    mockPrisma.salaryRecord.findMany.mockResolvedValueOnce([]); // Mock findMany for the chart test
 
     render(await DashboardPage());
 
@@ -155,10 +159,8 @@ describe("DashboardPage Integration", () => {
       paidTimeOffDaysUsed: null,
       paidTimeOffDaysRemaining: null,
     };
-    (mockPrisma.salaryRecord.findFirst as any).mockResolvedValueOnce(
-      mockSalaryRecord,
-    );
-    (mockPrisma.salaryRecord.findMany as any).mockResolvedValueOnce([]); // No history records
+    mockPrisma.salaryRecord.findFirst.mockResolvedValueOnce(mockSalaryRecord);
+    mockPrisma.salaryRecord.findMany.mockResolvedValueOnce([]); // No history records
 
     render(await DashboardPage());
 
