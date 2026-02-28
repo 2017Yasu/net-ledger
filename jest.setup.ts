@@ -1,6 +1,7 @@
 // jest.setup.ts
 import "@testing-library/jest-dom";
-import { TextEncoder, TextDecoder } from "util";
+
+import { TextDecoder, TextEncoder } from "util";
 
 // Polyfill for Node.js environment to support pg library
 // TextEncoder and TextDecoder are required by the pg library

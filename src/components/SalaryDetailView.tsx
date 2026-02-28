@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
-import { Paper, Typography, Grid, Divider, Box } from "@mui/material";
+import { Box, Divider, Grid, Paper, Typography } from "@mui/material";
 import { SalaryRecord } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/client";
+import React from "react";
 
 interface SalaryDetailViewProps {
   salaryRecord: SalaryRecord;

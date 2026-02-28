@@ -1,17 +1,19 @@
-import { POST as createSalaryPOST } from "@/app/api/salary/route";
+import { Prisma } from "@prisma/client"; // Import Prisma for types and Decimal
+import jwt from "jsonwebtoken";
+import { NextRequest } from "next/server"; // Import NextRequest
+
 import {
+  DELETE as deleteSalaryDELETE,
   GET as getSalaryGET,
   PUT as updateSalaryPUT,
-  DELETE as deleteSalaryDELETE,
 } from "@/app/api/salary/[recordId]/route";
+import { POST as createSalaryPOST } from "@/app/api/salary/route";
 import { generateAccessToken } from "@/lib/auth";
-import { NextRequest } from "next/server"; // Import NextRequest
-import jwt from "jsonwebtoken";
-import { Prisma } from "@prisma/client"; // Import Prisma for types and Decimal
+
+import prismaMock from "../../../__mocks__/lib/prisma";
 
 // Add this to explicitly use the global mock
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-jest.mock("@/lib/prisma", () => require("../../../__mocks__/lib/prisma") as Record<string, unknown>);
+jest.mock("@/lib/prisma", () => prismaMock as Record<string, unknown>);
 
 import prisma from "@/lib/prisma"; // Import after mocking
 
@@ -318,9 +320,7 @@ describe("SalaryRecord API Integration Tests", () => {
 
       expect(response.status).toBe(200);
       expect(data.id).toBe(recordId);
-      expect(data.baseSalary).toBe(
-        existingRecord.baseSalary.toNumber(),
-      );
+      expect(data.baseSalary).toBe(existingRecord.baseSalary.toNumber());
     });
 
     it("should return 401 if unauthorized", async () => {

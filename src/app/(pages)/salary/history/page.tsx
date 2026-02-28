@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Container, Typography, Box, Alert, Button } from "@mui/material";
-import SalaryHistoryList from "@/components/SalaryHistoryList";
-import { useAuth } from "@/lib/auth-context";
+import { Alert, Box, Button, Container, Typography } from "@mui/material";
 import { SalaryRecord } from "@prisma/client";
-import { useRouter } from "next/navigation";
-import { apiClient } from "@/lib/api-client";
 import axios from "axios";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+import SalaryHistoryList from "@/components/SalaryHistoryList";
+import { apiClient } from "@/lib/api-client";
+import { useAuth } from "@/lib/auth-context";
 import { ApiErrorResponse } from "@/lib/types/common";
 
 export default function SalaryHistoryPage() {

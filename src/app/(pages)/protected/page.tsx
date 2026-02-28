@@ -1,8 +1,9 @@
 "use client";
 
-import { useAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react"; // Import useState
+
+import { useAuth } from "@/lib/auth-context";
 
 export default function ProtectedPage() {
   const { accessToken, user } = useAuth();

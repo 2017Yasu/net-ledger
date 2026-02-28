@@ -1,9 +1,10 @@
 "use client";
 
+import axios from "axios";
 import { useState } from "react";
+
 import RegistrationForm from "@/components/RegistrationForm";
 import { useAuth } from "@/lib/auth-context";
-import axios from "axios";
 import { ApiErrorResponse } from "@/lib/types/common";
 
 export default function RegisterPage() {

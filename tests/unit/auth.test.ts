@@ -1,14 +1,15 @@
+import jwt from "jsonwebtoken";
+
 import {
-  hashPassword,
+  compareHashedRefreshTokens,
   comparePasswords,
   generateAccessToken,
   generateRefreshToken,
-  verifyToken, // This is now verifyAccessToken
-  verifyRefreshToken,
+  hashPassword,
   hashRefreshToken,
-  compareHashedRefreshTokens,
+  verifyRefreshToken,
+  verifyToken, // This is now verifyAccessToken
 } from "@/lib/auth";
-import jwt from "jsonwebtoken";
 
 // JWT_SECRET is set in jest.setup.ts globally
 const TEST_JWT_SECRET = process.env.JWT_SECRET || "fallback_secret";

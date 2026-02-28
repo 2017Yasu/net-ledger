@@ -1,20 +1,20 @@
 "use client";
 
-import React from "react";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import {
+  Box,
+  IconButton,
   List,
   ListItem,
   ListItemText,
-  Typography,
   Paper,
-  Box,
-  IconButton,
   Tooltip,
+  Typography,
 } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
 import { SalaryRecord } from "@prisma/client";
 import Link from "next/link";
+import React from "react";
 
 interface SalaryHistoryListProps {
   salaryRecords: SalaryRecord[];

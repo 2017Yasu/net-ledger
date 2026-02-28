@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -174,7 +175,10 @@ export async function proxy(request: NextRequest) {
 
   // Check for broken session: if user tried to access /dashboard with a refresh token cookie,
   // but authentication failed, it's a broken session (redirect to error)
-  if (request.nextUrl.pathname.startsWith("/dashboard") && !authenticatedUserId) {
+  if (
+    request.nextUrl.pathname.startsWith("/dashboard") &&
+    !authenticatedUserId
+  ) {
     const hasRefreshTokenCookie = request.cookies.get("refreshToken")?.value;
     if (hasRefreshTokenCookie) {
       logger.warn(

@@ -1,5 +1,6 @@
-import { validateSalaryRecordData } from "@/lib/validation";
 import { Prisma } from "@prisma/client";
+
+import { validateSalaryRecordData } from "@/lib/validation";
 
 describe("SalaryRecord Validation", () => {
   it("should return no errors for valid data", () => {

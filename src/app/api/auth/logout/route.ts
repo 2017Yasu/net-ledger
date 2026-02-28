@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { verifyRefreshToken } from "@/lib/auth";
-import { revokeRefreshToken, getRefreshToken } from "@/lib/refresh-token";
 import { logger } from "@/lib/logger"; // Import the logger
+import { getRefreshToken, revokeRefreshToken } from "@/lib/refresh-token";
 
 export async function POST(request: NextRequest) {
   try {

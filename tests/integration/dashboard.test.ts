@@ -2,15 +2,17 @@
  * @jest-environment jsdom
  */
 // tests/integration/dashboard.test.ts
-import { render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
+
+import { SalaryRecord, User } from "@prisma/client"; // Import Prisma types
+import { Prisma } from "@prisma/client";
+import { render, screen, waitFor } from "@testing-library/react";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+
 import DashboardPage from "@/app/(pages)/dashboard/page";
 import prisma from "@/lib/prisma"; // Use the globally mocked prisma
 import { getUserIdFromRequest } from "@/lib/server-auth";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { User, SalaryRecord } from "@prisma/client"; // Import Prisma types
-import { Prisma } from "@prisma/client";
 
 jest.mock("@/lib/server-auth", () => ({
   getUserIdFromRequest: jest.fn(),

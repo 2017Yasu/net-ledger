@@ -1,5 +1,6 @@
-import { NextRequest } from "next/server";
 import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
+import { NextRequest } from "next/server";
+
 import { verifyToken } from "./auth";
 
 const X_USER_ID_HEADER = "X-User-Id"; // Define custom header constant

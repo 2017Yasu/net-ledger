@@ -1,16 +1,14 @@
-import { POST as registerPOST } from "@/app/api/auth/register/route";
+import { NextRequest } from "next/server";
+
 import { POST as loginPOST } from "@/app/api/auth/login/route";
 import { POST as logoutPOST } from "@/app/api/auth/logout/route";
+import { POST as registerPOST } from "@/app/api/auth/register/route";
 import { hashPassword, verifyRefreshToken } from "@/lib/auth"; // Import verifyRefreshToken to mock it
-import { NextRequest } from "next/server";
-// import { Decimal } from "decimal.js"; // Import Decimal.js for testing, as prisma mock uses it - this is not directly used for mocking prisma.Decimal
 
-// Mock next/server - we'll let it use the real implementation
-// jest.mock("next/server");
+import prismaMock from "../../../__mocks__/lib/prisma";
 
 // Mock prisma before importing it
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-jest.mock("@/lib/prisma", () => require("../../../__mocks__/lib/prisma") as Record<string, unknown>);
+jest.mock("@/lib/prisma", () => prismaMock as Record<string, unknown>);
 
 import prisma from "@/lib/prisma"; // This will now use the global mock
 

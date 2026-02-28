@@ -1,16 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
 import {
-  TextField,
-  Button,
-  Box,
-  Typography,
-  Container,
-  CircularProgress,
   Alert,
+  Box,
+  Button,
+  CircularProgress,
+  Container,
+  TextField,
+  Typography,
 } from "@mui/material";
-import { SalaryRecord, Prisma } from "@prisma/client";
+import { Prisma, SalaryRecord } from "@prisma/client";
+import React, { useState } from "react";
 
 interface SalaryFormProps {
   initialData?: Partial<SalaryRecord> | null;

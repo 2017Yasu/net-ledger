@@ -1,9 +1,10 @@
-import { render, screen, act } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import { useContext, useEffect } from "react";
+
 import { AuthProvider } from "@/components/AuthProvider";
 import { AuthContext } from "@/lib/auth-context";
-import { useRouter } from "next/navigation";
-import axios from "axios";
-import { useContext, useEffect } from "react";
 
 // Mock useRouter
 jest.mock("next/navigation", () => ({
@@ -12,7 +13,7 @@ jest.mock("next/navigation", () => ({
 
 // Mock apiClient and axios for refresh token logic
 jest.mock("@/lib/api-client");
-import { authTokenStore, apiClient } from "@/lib/api-client";
+import { apiClient, authTokenStore } from "@/lib/api-client";
 
 // Setup the mock implementation
 (authTokenStore.get as jest.Mock) = jest.fn(() => null);
@@ -40,7 +41,9 @@ describe("AuthProvider", () => {
       const context = useContext(AuthContext);
       return (
         <button
-          onClick={() => context?.login("test-token", { id: "1", username: "test" })}
+          onClick={() =>
+            context?.login("test-token", { id: "1", username: "test" })
+          }
         >
           Login
         </button>
@@ -70,7 +73,11 @@ describe("AuthProvider", () => {
       return (
         <button
           onClick={() =>
-            context?.login("test-token", { id: "1", username: "test" }, "/protected")
+            context?.login(
+              "test-token",
+              { id: "1", username: "test" },
+              "/protected",
+            )
           }
         >
           Login

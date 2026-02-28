@@ -1,13 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import SalaryForm from "@/components/SalaryForm";
-import { useAuth } from "@/lib/auth-context";
-import { Alert, Container, Box, Button } from "@mui/material";
+import { Alert, Box, Button, Container } from "@mui/material";
 import { SalaryRecord } from "@prisma/client";
-import { apiClient } from "@/lib/api-client";
 import axios from "axios";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
+
+import SalaryForm from "@/components/SalaryForm";
+import { apiClient } from "@/lib/api-client";
+import { useAuth } from "@/lib/auth-context";
 import { ApiErrorResponse } from "@/lib/types/common";
 
 export default function RecordSalaryPage() {

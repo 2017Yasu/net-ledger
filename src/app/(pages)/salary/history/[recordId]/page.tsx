@@ -1,22 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import {
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
   Container,
   Typography,
-  Box,
-  CircularProgress,
-  Alert,
-  Button,
 } from "@mui/material";
+import { SalaryRecord } from "@prisma/client";
+import axios from "axios";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/lib/auth-context";
+import { useEffect, useState } from "react";
+
 import SalaryDetailView from "@/components/SalaryDetailView";
 import SalaryForm from "@/components/SalaryForm";
-import { SalaryRecord } from "@prisma/client";
 import { apiClient } from "@/lib/api-client";
+import { useAuth } from "@/lib/auth-context";
 import { ApiErrorResponse } from "@/lib/types/common";
-import axios from "axios";
 
 interface SalaryDetailPageProps {
   recordId: string;

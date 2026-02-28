@@ -1,12 +1,13 @@
 // src/app/(pages)/dashboard/page.tsx
-import React from "react";
-import prisma from "@/lib/prisma";
-import { getUserIdFromRequest } from "@/lib/server-auth";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import React from "react";
+
 import SalarySummaryCard from "@/components/SalarySummaryCard";
 import SalaryTrendChart from "@/components/SalaryTrendChart";
 import { logger } from "@/lib/logger"; // Import the logger
+import prisma from "@/lib/prisma";
+import { getUserIdFromRequest } from "@/lib/server-auth";
 
 interface FormattedSalaryRecord {
   month: number;

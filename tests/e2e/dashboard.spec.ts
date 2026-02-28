@@ -1,5 +1,5 @@
 // tests/e2e/dashboard.spec.ts
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 test.describe("Dashboard Page", () => {
   test("should redirect to dashboard after login and display salary summary and chart", async ({

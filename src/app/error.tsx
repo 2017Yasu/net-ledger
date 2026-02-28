@@ -1,7 +1,7 @@
 "use client";
 
+import { Box, Button, Container, Typography } from "@mui/material";
 import { useEffect } from "react";
-import { Typography, Container, Box, Button } from "@mui/material";
 
 export default function Error({
   error,

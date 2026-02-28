@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+
+import { logger } from "@/lib/logger"; // Import the logger
 import prisma from "@/lib/prisma";
 import { getUserIdFromRequest } from "@/lib/server-auth"; // Utility to get userId from access token
-import { logger } from "@/lib/logger"; // Import the logger
 
 export async function POST(request: NextRequest) {
   try {

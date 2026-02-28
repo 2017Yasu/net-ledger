@@ -1,16 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import {
-  verifyRefreshToken,
   generateAccessToken,
   generateRefreshToken,
+  verifyRefreshToken,
 } from "@/lib/auth";
+import { logger } from "@/lib/logger";
+import prisma from "@/lib/prisma";
 import {
   createRefreshToken,
-  revokeRefreshToken,
   getRefreshToken,
+  revokeRefreshToken,
 } from "@/lib/refresh-token";
-import prisma from "@/lib/prisma";
-import { logger } from "@/lib/logger";
 import { LoginResponse } from "@/lib/types/auth";
 import { ApiErrorResponse } from "@/lib/types/common";
 

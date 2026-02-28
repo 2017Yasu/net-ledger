@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 test.describe("Authentication Flow Redirection", () => {
   const username = `testuser-${Date.now()}`; // Unique username for each test run

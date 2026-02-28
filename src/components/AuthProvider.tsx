@@ -1,12 +1,13 @@
 "use client";
 
-import { AuthContext } from "@/lib/auth-context";
+import { Backdrop, CircularProgress } from "@mui/material";
+import axios from "axios";
 import { useRouter } from "next/navigation";
 import { ReactNode, useCallback, useEffect, useState } from "react";
+
 import { apiClient, authTokenStore } from "@/lib/api-client";
-import axios from "axios";
+import { AuthContext } from "@/lib/auth-context";
 import { LoginResponse } from "@/lib/types/auth";
-import { Backdrop, CircularProgress } from "@mui/material";
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<{ id: string; username: string } | null>(

@@ -1,15 +1,13 @@
-import { proxy } from "@/proxy";
 import { NextRequest, NextResponse } from "next/server";
-import {
-  verifyRefreshToken,
-  verifyToken,
-} from "@/lib/auth";
+
+import { verifyRefreshToken, verifyToken } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 import {
   createRefreshToken,
   getRefreshToken,
   revokeRefreshToken,
 } from "@/lib/refresh-token";
-import { logger } from "@/lib/logger";
+import { proxy } from "@/proxy";
 
 // Mock external dependencies
 jest.mock("next/server", () => ({
@@ -186,7 +184,9 @@ describe("Proxy (Middleware) Redirection Logic", () => {
     req.cookies.get = ((name: string) => {
       const cookie = cookies.get(name);
       return cookie ? { name, value: cookie.value } : undefined;
-    }) as unknown as (name: string) => { name: string; value: string } | undefined;
+    }) as unknown as (
+      name: string,
+    ) => { name: string; value: string } | undefined;
 
     return req;
   };

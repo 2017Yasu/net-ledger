@@ -16,17 +16,17 @@
     {
       "label": "Run Docker Compose",
       "type": "shell",
-      "command": "docker compose -f docker/compose.yml up -d",
+      "command": "docker compose -f docker/compose.yml up -d"
     },
     {
       "label": "Stop Docker Compose",
       "type": "shell",
-      "command": "docker compose -f docker/compose.yml down",
+      "command": "docker compose -f docker/compose.yml down"
     },
     {
       "label": "Clean Docker Volumes",
       "type": "shell",
-      "command": "docker compose -f docker/compose.yml down -v",
+      "command": "docker compose -f docker/compose.yml down -v"
     }
   ]
 }

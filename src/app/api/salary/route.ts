@@ -1,7 +1,8 @@
+import { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
+
 import prisma from "@/lib/prisma";
 import { getUserIdFromRequest } from "@/lib/server-auth";
-import { Prisma } from "@prisma/client";
 import { validateSalaryRecordData } from "@/lib/validation"; // Import the new validation utility
 
 export async function POST(request: NextRequest) {

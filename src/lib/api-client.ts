@@ -3,8 +3,9 @@ import axios, {
   AxiosResponse,
   InternalAxiosRequestConfig,
 } from "axios";
-import { ApiErrorResponse } from "./types/common";
+
 import { AuthResponse } from "./types/auth";
+import { ApiErrorResponse } from "./types/common";
 
 export const apiClient = axios.create({
   headers: {
