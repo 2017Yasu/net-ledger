@@ -1,16 +1,18 @@
 <!--
 ## Sync Impact Report
 
-Version Change: 1.0.0 → 1.1.0 (Minor: new principle added)
+Version Change: 1.2.0 → 1.3.0 (Minor: added mandatory post-implementation validation)
 Added Sections: None
-Modified Principles: Added: VI. Next.js Platform Specifics
+Modified Principles: 
+- I. Code Quality and Consistency (added Validation bullet)
+- Development Workflow (added Validation step)
 Removed Sections: None
 Templates Requiring Updates:
 - ✅ .specify/memory/constitution.md
 - ✅ .specify/templates/plan-template.md
 - ✅ .specify/templates/spec-template.md
 - ✅ .specify/templates/tasks-template.md
-- ✅ .gemini/commands/speckit.constitution.toml
+- ✅ .gemini/commands/speckit.implement.toml
 Follow-up TODOs: None
 -->
 
@@ -25,6 +27,7 @@ All code MUST adhere to a strict set of quality standards. This includes:
 - **Typing**: Full TypeScript adoption is mandatory. The `any` type is disallowed; use `unknown` for gradual typing and type guards. All new code must have strict type coverage.
 - **Linting**: ESLint, configured with the recommended rules for TypeScript, React (`eslint-plugin-react-hooks`), and Next.js, is enforced across the entire codebase. All code MUST be free of linting errors before being merged.
 - **Formatting**: Prettier is used for non-negotiable, automated code formatting to ensure a uniform style and prevent debates on code layout.
+- **Validation**: Developers MUST run `pnpm format` and `pnpm check` (which includes linting, type-checking, and testing) after completing any implementation and before opening a Pull Request. This ensures the codebase remains clean and functional at all times.
 
 ### II. Rigorous and Automated Testing
 
@@ -66,6 +69,8 @@ Version control history MUST be clean, understandable, and serve as a reliable p
 Leverage Next.js features according to their intended purpose and current best practices.
 
 - **Proxy Functionality**: Starting with Next.js 16, Middleware is now called Proxy. Use `src/proxy.ts` for all proxy-related functionality. The functionality remains the same as previous Middleware.
+- **Client Components in Pages**: All page components within `src/app/(pages)` MUST be defined as Client Components (`'use client'`). This ensures consistency in how pages handle state and interactivity.
+- **Unauthorized Access Handling**: When an unauthorized user attempts to access a protected page, the application MUST intercept the request and prompt the user to log in again, typically by redirecting to the login page with an appropriate message or state.
 
 ## Development Workflow
 
@@ -73,6 +78,7 @@ The development process follows a structured workflow to ensure quality and pred
 
 - **Specification**: New features begin with a clear specification that outlines the user requirements, technical approach, and acceptance criteria.
 - **Implementation**: Code is developed on feature branches, strictly adhering to the principles outlined in this constitution.
+- **Validation**: After implementation and before code review, `pnpm format` and `pnpm check` MUST be successfully executed to guarantee adherence to project standards.
 - **Code Review**: All Pull Requests undergo a mandatory peer review to verify correctness, style, and adherence to constitutional principles.
 - **Deployment**: Merges to the `main` branch trigger automated, idempotent deployments to a staging environment for final verification before a controlled release to production.
 
@@ -84,4 +90,4 @@ This constitution is the foundational law of the project, ensuring long-term qua
 - **Amendments**: Changes to this constitution require a team discussion and a formal proposal via a Pull Request. The PR must provide a clear rationale for the change and document its potential impact.
 - **Versioning**: The constitution follows Semantic Versioning (Major.Minor.Patch) to track its evolution.
 
-**Version**: 1.1.0 | **Ratified**: 2026-01-04 | **Last Amended**: 2026-01-10
+**Version**: 1.3.0 | **Ratified**: 2026-01-04 | **Last Amended**: 2026-02-28

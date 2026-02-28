@@ -21,6 +21,8 @@ description: "Task list template for feature implementation in a Next.js project
 - **Tests**: `tests/unit`, `tests/e2e`
 - Paths shown below assume the standard Next.js App Router structure.
 - **Next.js Proxy**: Use `src/proxy.ts` for proxy (formerly middleware) functionality.
+- **Client Components**: All components in `src/app/(pages)` MUST be client components (`'use client'`).
+- **Auth Handling**: Ensure protected pages prompt the user to login again if unauthorized.
 
 <!--
   ============================================================================
@@ -89,6 +91,8 @@ description: "Task list template for feature implementation in a Next.js project
 - [ ] TXXX Code cleanup and refactoring based on review feedback.
 - [ ] TXXX Performance review and optimization.
 - [ ] TXXX Final security and accessibility audit.
+- [ ] TXXX [P] Run `pnpm format` to ensure style consistency.
+- [ ] TXXX [P] Run `pnpm check` to verify linting, types, and tests pass.
 
 ---
 

@@ -101,7 +101,8 @@ _Example of marking unclear requirements:_
 - **NFR-002 (Accessibility)**: How will this feature meet WCAG 2.1 AA standards (e.g., keyboard navigation, screen reader compatibility, color contrast)?
 - **NFR-003 (Security)**: What are the security risks and how will they be mitigated (e.g., input validation, authentication/authorization checks)?
 - **NFR-004 (Observability)**: What logging, metrics, or tracing is required to monitor the health and usage of this feature?
-- **NFR-005 (Next.js Platform)**: How will this feature utilize Next.js's Proxy functionality (formerly Middleware) via src/proxy.ts, and what specific configurations or patterns will be used?
+- **NFR-005 (Next.js Platform)**: How will this feature utilize Next.js's Proxy functionality (via src/proxy.ts), ensure all pages in `src/app/(pages)` are Client Components, and handle unauthorized access by prompting the user to log in again?
+- **NFR-006 (Validation)**: Confirm that `pnpm format` and `pnpm check` (which includes linting, type-checking, and tests) have been run and pass before concluding implementation.
 
 ### Key Entities _(include if feature involves data)_
 

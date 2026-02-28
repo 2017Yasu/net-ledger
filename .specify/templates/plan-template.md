@@ -3,7 +3,7 @@
 **Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
 **Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
 
-**Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
+**Note**: This template is filled in by the `/speckit.plan` command. See `.gemini/commands/speckit.plan.toml` for the execution workflow.
 
 ## Summary
 
@@ -25,12 +25,12 @@
 
 _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-- **[ ] I. Code Quality**: Does the plan account for strict TypeScript, ESLint, and Prettier standards?
+- **[ ] I. Code Quality**: Does the plan account for strict TypeScript, ESLint, Prettier standards, and running `pnpm format` and `pnpm check` before PR submission?
 - **[ ] II. Testing**: Does the plan include tasks for unit, integration, and E2E tests for the feature?
 - **[ ] III. UX Consistency**: Does the plan leverage the existing Material-UI component library for all UI development?
 - **[ ] IV. Performance**: Has the appropriate Next.js rendering strategy (SSR, SSG, ISR) been chosen and justified for new pages?
 - [ ] V. Git Practices: Is the work broken down into small, logical PRs suitable for Conventional Commits?
-- [ ] VI. Next.js Platform Specifics: Does the plan account for Next.js 16 Proxy functionality and usage of src/proxy.ts?
+- [ ] VI. Next.js Platform Specifics: Does the plan account for Next.js 16 Proxy functionality (src/proxy.ts), the use of Client Components for all pages in `src/app/(pages)`, and appropriate unauthorized access handling?
 
 ## Project Structure
 
