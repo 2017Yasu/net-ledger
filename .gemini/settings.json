@@ -12,12 +12,14 @@
         "false"
       ],
       "cwd": ".",
+      "trust": true,
       "timeout": 15000
     },
     "context7": {
       "command": "npx",
       "args": ["-y", "@upstash/context7-mcp@latest"],
       "cwd": ".",
+      "trust": true,
       "timeout": 15000
     }
   }
