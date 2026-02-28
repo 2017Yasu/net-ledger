@@ -56,6 +56,10 @@ export class Decimal {
   toString(): string {
     return this.value.toString();
   }
+
+  toJSON(): number {
+    return this.toNumber();
+  }
 }
 
 const mockPrismaClient = {
@@ -69,6 +73,13 @@ const mockPrismaClient = {
     findUnique: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),
+    findMany: jest.fn(),
+  },
+  refreshToken: {
+    // Add refreshToken mock
+    create: jest.fn(),
+    updateMany: jest.fn(),
+    findUnique: jest.fn(),
     findMany: jest.fn(),
   },
   // We expose the Decimal constructor here as well, as it's often accessed via prisma.Decimal

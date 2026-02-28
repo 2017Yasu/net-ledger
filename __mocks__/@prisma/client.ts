@@ -69,4 +69,14 @@ export class Decimal {
   toString(): string {
     return this.value.toString();
   }
+
+  toJSON(): number {
+    return this.toNumber();
+  }
 }
+
+// Mock Prisma object itself to contain Decimal
+export const Prisma = {
+  Decimal: Decimal, // Export our mocked Decimal class as Prisma.Decimal
+  // Add other Prisma types if needed for mocks, e.g., Prisma.UserScalarFieldEnum
+};

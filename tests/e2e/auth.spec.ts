@@ -1,55 +1,107 @@
 import { test, expect } from "@playwright/test";
 
-test.describe("Authentication Flow", () => {
-  const username = `testuser-${Date.now()}`;
+test.describe("Authentication Flow Redirection", () => {
+  const username = `testuser-${Date.now()}`; // Unique username for each test run
   const password = "Password123!";
 
-  test("should allow a user to register, login, and logout", async ({
+  test.beforeAll(async ({ request }) => {
+    // Register user once before all tests in this describe block
+    // This is an API call so it's not subject to redirection rules like UI navigation
+    await request.post("/api/auth/register", {
+      data: {
+        username: username,
+        password: password,
+        confirmPassword: password,
+      },
+    });
+  });
+
+  test.beforeEach(async ({ page }) => {
+    // Ensure we start from a clean state (logged out) for each test
+    await page.context().clearCookies();
+    // Navigate to a non-protected page to ensure no lingering state
+    await page.goto("/");
+  });
+
+  test("T010: should allow a user to login and redirect to dashboard", async ({
     page,
   }) => {
-    // 1. Navigate to the registration page
-    await page.goto("/auth/register");
-    await expect(page).toHaveURL(/auth\/register/);
-
-    // 2. Register a new user
-    await page.fill('input[name="username"]', username);
-    await page.fill('input[name="password"]', password);
-    await page.fill('input[name="confirmPassword"]', password);
-    await page.click('button:has-text("Register")');
-
-    // 3. Verify successful registration (redirects to login)
-    await expect(page).toHaveURL(/auth\/login\?registered=true/);
-    await expect(page.locator("text=Login")).toBeVisible();
-
-    // 4. Navigate to the login page (already there, but for clarity)
     await page.goto("/auth/login");
-    await expect(page).toHaveURL(/auth\/login/);
-
-    // 5. Log in with the newly registered user
     await page.fill('input[name="username"]', username);
     await page.fill('input[name="password"]', password);
     await page.click('button:has-text("Login")');
 
-    // 6. Verify successful login (redirects to dashboard)
-    await expect(page).toHaveURL(/dashboard/); // Assuming '/dashboard' is the protected route
-    await expect(page.locator("text=Welcome to your Dashboard")).toBeVisible(); // Assuming this text appears on dashboard
+    // Verify successful login and dashboard redirection
+    await expect(page).toHaveURL("/dashboard");
+    await expect(page.locator("text=Welcome to your Dashboard")).toBeVisible();
+  });
 
-    // 7. Log out (assuming a logout button/link exists on the dashboard)
-    // For now, we'll manually trigger logout via API or direct route if no UI element
-    // await page.click('button:has-text("Logout")') // Placeholder if UI exists
-    // As per `auth-context.ts`, logout redirects to /auth/login, clearing cookie
-    await page.evaluate(() => {
-      document.cookie =
-        "token=; Max-Age=0; path=/; domain=" + window.location.hostname;
-    });
-    // This isn't ideal as it's not simulating a UI click.
-    // A better way would be to create a logout button on the dashboard and click it.
-    // For now, let's just navigate to login to confirm it's logged out implicitly.
+  test("T011: should redirect authenticated users from /auth/login and /auth/register to /dashboard", async ({
+    page,
+  }) => {
+    // First, log in the user
     await page.goto("/auth/login");
-    await expect(page).toHaveURL(/auth\/login/);
+    await page.fill('input[name="username"]', username);
+    await page.fill('input[name="password"]', password);
+    await page.click('button:has-text("Login")');
+    await expect(page).toHaveURL("/dashboard"); // Ensure logged in
 
-    // 8. Attempt to access a protected route while logged out (should redirect to login)
+    // Attempt to access /auth/login
+    await page.goto("/auth/login");
+    await expect(page).toHaveURL("/dashboard");
+    await expect(page.locator("text=Welcome to your Dashboard")).toBeVisible();
+
+    // Attempt to access /auth/register
+    await page.goto("/auth/register");
+    await expect(page).toHaveURL("/dashboard");
+    await expect(page.locator("text=Welcome to your Dashboard")).toBeVisible();
+  });
+
+  test("should redirect unauthenticated users from protected routes to /auth/login", async ({
+    page,
+  }) => {
+    // Ensure user is logged out (handled by beforeEach clearCookies)
+    await page.goto("/dashboard"); // Attempt to access protected route
+    // Expect redirection to login with redirectTo param
+    await expect(page).toHaveURL(/auth\/login\?redirectTo=\/dashboard/);
+  });
+
+  test("T012: should redirect to /error?code=dashboard-unavailable if authenticated user's session is broken when accessing /dashboard", async ({
+    page,
+  }) => {
+    // 1. Log in normally to get valid tokens
+    await page.goto("/auth/login");
+    await page.fill('input[name="username"]', username);
+    await page.fill('input[name="password"]', password);
+    await page.click('button:has-text("Login")');
+    await expect(page).toHaveURL("/dashboard");
+
+    // 2. Invalidate refresh token cookie to simulate a broken session
+    //    proxy.ts logic for T006 depends on `authenticatedUserId` being null when accessing /dashboard
+    //    after all token checks fail (including refresh).
+    //    Clearing cookies ensures no refresh token is sent, forcing the proxy to determine `authenticatedUserId` as null.
+    await page.context().clearCookies();
+
+    // 3. Attempt to access dashboard again with a broken session
     await page.goto("/dashboard");
-    await expect(page).toHaveURL(/auth\/login\?from=\/dashboard/); // Middleware should redirect
+
+    // Expect redirection to the dashboard unavailable error page
+    await expect(page).toHaveURL(/error\?code=dashboard-unavailable/);
+  });
+
+  test("should handle / route redirection for authenticated users", async ({
+    page,
+  }) => {
+    // First, log in the user
+    await page.goto("/auth/login");
+    await page.fill('input[name="username"]', username);
+    await page.fill('input[name="password"]', password);
+    await page.click('button:has-text("Login")');
+    await expect(page).toHaveURL("/dashboard"); // Ensure logged in
+
+    // Navigate to the root route
+    await page.goto("/");
+    // Expect redirection to /dashboard
+    await expect(page).toHaveURL("/dashboard");
   });
 });

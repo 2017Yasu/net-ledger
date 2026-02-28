@@ -1,6 +1,7 @@
 {
-  "mcpServers": {
+  "servers": {
     "serena": {
+      "type": "stdio",
       "command": "uvx",
       "args": [
         "--from",
@@ -10,15 +11,13 @@
         "ide-assistant",
         "--enable-web-dashboard",
         "false"
-      ],
-      "cwd": ".",
-      "timeout": 15000
+      ]
     },
     "context7": {
+      "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp@latest"],
-      "cwd": ".",
-      "timeout": 15000
+      "args": ["-y", "@upstash/context7-mcp@latest"]
     }
-  }
+  },
+  "inputs": []
 }

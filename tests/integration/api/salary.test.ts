@@ -7,33 +7,13 @@ import {
 import { generateAccessToken } from "@/lib/auth";
 import { NextRequest } from "next/server"; // Import NextRequest
 import jwt from "jsonwebtoken";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client"; // Import Prisma for types and Decimal
 
-// Define mockPrismaClient and MockDecimalClass at the top-level
-// so they are hoisted and available when jest.mock is evaluated.
-const mockPrismaClient = {
-  user: {
-    findUnique: jest.fn(),
-    create: jest.fn(),
-  },
-  salaryRecord: {
-    create: jest.fn(),
-    findFirst: jest.fn(),
-    findUnique: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
-    findMany: jest.fn(),
-  },
-};
+// Add this to explicitly use the global mock
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+jest.mock("@/lib/prisma", () => require("../../../__mocks__/lib/prisma") as Record<string, unknown>);
 
-// Mock the entire @/lib/prisma module to control both default and named exports
-jest.mock("@/lib/prisma", () => ({
-  __esModule: true,
-  default: mockPrismaClient, // Default export is the mocked PrismaClient instance
-  Prisma: {
-    Decimal: jest.requireActual("decimal.js"),
-  },
-}));
+import prisma from "@/lib/prisma"; // Import after mocking
 
 // Mock JWT_SECRET for testing
 process.env.JWT_SECRET = "test_secret_for_salary_integration";
@@ -87,50 +67,42 @@ describe("SalaryRecord API Integration Tests", () => {
   beforeEach(() => {
     // Clear all mocks on prisma client methods
     jest.clearAllMocks();
-    (mockPrismaClient.user.findUnique as jest.Mock).mockResolvedValue(mockUser); // Mock user always exists
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser); // Mock user always exists
     // Set up mock implementations for prisma methods
-    (mockPrismaClient.salaryRecord.create as jest.Mock).mockImplementation(
-      (data) => ({
-        id: "mock-record-id",
-        userId: mockUserId,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        ...data.data,
-        baseSalary: new Prisma.Decimal(data.data.baseSalary),
-        grossEarnings: new Prisma.Decimal(data.data.grossEarnings),
-        netPay: new Prisma.Decimal(data.data.netPay),
-      }),
-    );
-    (mockPrismaClient.salaryRecord.findFirst as jest.Mock).mockResolvedValue(
-      null,
-    );
-    (mockPrismaClient.salaryRecord.findUnique as jest.Mock).mockResolvedValue(
-      null,
-    );
-    (mockPrismaClient.salaryRecord.update as jest.Mock).mockImplementation(
-      (args) => ({
-        id: args.where.id,
-        userId: mockUserId,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        // Ensure that Decimal fields in the returned object are instances of Decimal
-        baseSalary:
-          args.data.baseSalary !== undefined
-            ? new Prisma.Decimal(args.data.baseSalary)
-            : new Prisma.Decimal(0),
-        grossEarnings:
-          args.data.grossEarnings !== undefined
-            ? new Prisma.Decimal(args.data.grossEarnings)
-            : new Prisma.Decimal(0),
-        netPay:
-          args.data.netPay !== undefined
-            ? new Prisma.Decimal(args.data.netPay)
-            : new Prisma.Decimal(0),
-        ...args.data,
-      }),
-    );
-    (mockPrismaClient.salaryRecord.delete as jest.Mock).mockResolvedValue({});
-    (mockPrismaClient.salaryRecord.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.salaryRecord.create as jest.Mock).mockImplementation((data) => ({
+      id: "mock-record-id",
+      userId: mockUserId,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      ...data.data,
+      baseSalary: new Prisma.Decimal(data.data.baseSalary),
+      grossEarnings: new Prisma.Decimal(data.data.grossEarnings),
+      netPay: new Prisma.Decimal(data.data.netPay),
+    }));
+    (prisma.salaryRecord.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.salaryRecord.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.salaryRecord.update as jest.Mock).mockImplementation((args) => ({
+      id: args.where.id,
+      userId: mockUserId,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      // Ensure that Decimal fields in the returned object are instances of Decimal
+      baseSalary:
+        args.data.baseSalary !== undefined
+          ? new Prisma.Decimal(args.data.baseSalary)
+          : new Prisma.Decimal(0),
+      grossEarnings:
+        args.data.grossEarnings !== undefined
+          ? new Prisma.Decimal(args.data.grossEarnings)
+          : new Prisma.Decimal(0),
+      netPay:
+        args.data.netPay !== undefined
+          ? new Prisma.Decimal(args.data.netPay)
+          : new Prisma.Decimal(0),
+      ...args.data,
+    }));
+    (prisma.salaryRecord.delete as jest.Mock).mockResolvedValue({});
+    (prisma.salaryRecord.findMany as jest.Mock).mockResolvedValue([]);
   });
 
   // Mock getUserIdFromRequest since it's used in all salary routes
@@ -171,7 +143,7 @@ describe("SalaryRecord API Integration Tests", () => {
       expect(response.status).toBe(201);
       expect(data).toHaveProperty("id");
       expect(data.userId).toBe(mockUserId);
-      expect(mockPrismaClient.salaryRecord.create).toHaveBeenCalledTimes(1);
+      expect(prisma.salaryRecord.create).toHaveBeenCalledTimes(1);
     });
 
     it("should return 401 if unauthorized", async () => {
@@ -184,7 +156,7 @@ describe("SalaryRecord API Integration Tests", () => {
     });
 
     it("should return 409 if record for month/year already exists", async () => {
-      (mockPrismaClient.salaryRecord.findFirst as jest.Mock).mockResolvedValue({
+      (prisma.salaryRecord.findFirst as jest.Mock).mockResolvedValue({
         id: "existing-record",
       });
 
@@ -229,7 +201,7 @@ describe("SalaryRecord API Integration Tests", () => {
     };
 
     it("should update a salary record successfully", async () => {
-      (mockPrismaClient.salaryRecord.findUnique as jest.Mock).mockResolvedValue(
+      (prisma.salaryRecord.findUnique as jest.Mock).mockResolvedValue(
         existingRecord,
       );
       // prisma.salaryRecord.update mock is set in beforeEach
@@ -243,8 +215,8 @@ describe("SalaryRecord API Integration Tests", () => {
 
       expect(response.status).toBe(200);
       expect(data.id).toBe(recordId);
-      expect(data.baseSalary.toNumber()).toBe(updateData.baseSalary);
-      expect(mockPrismaClient.salaryRecord.update).toHaveBeenCalledTimes(1);
+      expect(data.baseSalary).toBe(updateData.baseSalary);
+      expect(prisma.salaryRecord.update).toHaveBeenCalledTimes(1);
     });
 
     it("should return 401 if unauthorized", async () => {
@@ -261,9 +233,7 @@ describe("SalaryRecord API Integration Tests", () => {
     });
 
     it("should return 404 if record not found", async () => {
-      (mockPrismaClient.salaryRecord.findUnique as jest.Mock).mockResolvedValue(
-        null,
-      );
+      (prisma.salaryRecord.findUnique as jest.Mock).mockResolvedValue(null);
 
       const request = createMockRequest("PUT", updateData, mockToken, {
         recordId,
@@ -278,12 +248,10 @@ describe("SalaryRecord API Integration Tests", () => {
     });
 
     it("should return 403 if user does not own the record", async () => {
-      (mockPrismaClient.salaryRecord.findUnique as jest.Mock).mockResolvedValue(
-        {
-          ...existingRecord,
-          userId: "other-user-id",
-        },
-      );
+      (prisma.salaryRecord.findUnique as jest.Mock).mockResolvedValue({
+        ...existingRecord,
+        userId: "other-user-id",
+      });
 
       const request = createMockRequest("PUT", updateData, mockToken, {
         recordId,
@@ -298,7 +266,7 @@ describe("SalaryRecord API Integration Tests", () => {
     });
 
     it("should return 400 for invalid input (e.g., negative baseSalary in update)", async () => {
-      (mockPrismaClient.salaryRecord.findUnique as jest.Mock).mockResolvedValue(
+      (prisma.salaryRecord.findUnique as jest.Mock).mockResolvedValue(
         existingRecord,
       );
       const invalidUpdate = {
@@ -336,7 +304,7 @@ describe("SalaryRecord API Integration Tests", () => {
     };
 
     it("should get a salary record successfully", async () => {
-      (mockPrismaClient.salaryRecord.findUnique as jest.Mock).mockResolvedValue(
+      (prisma.salaryRecord.findUnique as jest.Mock).mockResolvedValue(
         existingRecord,
       );
 
@@ -350,7 +318,7 @@ describe("SalaryRecord API Integration Tests", () => {
 
       expect(response.status).toBe(200);
       expect(data.id).toBe(recordId);
-      expect(data.baseSalary.toNumber()).toBe(
+      expect(data.baseSalary).toBe(
         existingRecord.baseSalary.toNumber(),
       );
     });
@@ -369,9 +337,7 @@ describe("SalaryRecord API Integration Tests", () => {
     });
 
     it("should return 404 if record not found", async () => {
-      (mockPrismaClient.salaryRecord.findUnique as jest.Mock).mockResolvedValue(
-        null,
-      );
+      (prisma.salaryRecord.findUnique as jest.Mock).mockResolvedValue(null);
 
       const request = createMockRequest("GET", undefined, mockToken, {
         recordId,
@@ -386,12 +352,10 @@ describe("SalaryRecord API Integration Tests", () => {
     });
 
     it("should return 403 if user does not own the record", async () => {
-      (mockPrismaClient.salaryRecord.findUnique as jest.Mock).mockResolvedValue(
-        {
-          ...existingRecord,
-          userId: "other-user-id",
-        },
-      );
+      (prisma.salaryRecord.findUnique as jest.Mock).mockResolvedValue({
+        ...existingRecord,
+        userId: "other-user-id",
+      });
 
       const request = createMockRequest("GET", undefined, mockToken, {
         recordId,
@@ -421,10 +385,10 @@ describe("SalaryRecord API Integration Tests", () => {
     };
 
     it("should delete a salary record successfully", async () => {
-      (mockPrismaClient.salaryRecord.findUnique as jest.Mock).mockResolvedValue(
+      (prisma.salaryRecord.findUnique as jest.Mock).mockResolvedValue(
         existingRecord,
       );
-      (mockPrismaClient.salaryRecord.delete as jest.Mock).mockResolvedValue(
+      (prisma.salaryRecord.delete as jest.Mock).mockResolvedValue(
         existingRecord,
       );
 
@@ -436,7 +400,7 @@ describe("SalaryRecord API Integration Tests", () => {
       });
 
       expect(response.status).toBe(204);
-      expect(mockPrismaClient.salaryRecord.delete).toHaveBeenCalledWith({
+      expect(prisma.salaryRecord.delete).toHaveBeenCalledWith({
         where: { id: recordId },
       });
     });
@@ -455,9 +419,7 @@ describe("SalaryRecord API Integration Tests", () => {
     });
 
     it("should return 404 if record not found", async () => {
-      (mockPrismaClient.salaryRecord.findUnique as jest.Mock).mockResolvedValue(
-        null,
-      );
+      (prisma.salaryRecord.findUnique as jest.Mock).mockResolvedValue(null);
 
       const request = createMockRequest("DELETE", undefined, mockToken, {
         recordId,
@@ -472,12 +434,10 @@ describe("SalaryRecord API Integration Tests", () => {
     });
 
     it("should return 403 if user does not own the record", async () => {
-      (mockPrismaClient.salaryRecord.findUnique as jest.Mock).mockResolvedValue(
-        {
-          ...existingRecord,
-          userId: "other-user-id",
-        },
-      );
+      (prisma.salaryRecord.findUnique as jest.Mock).mockResolvedValue({
+        ...existingRecord,
+        userId: "other-user-id",
+      });
 
       const request = createMockRequest("DELETE", undefined, mockToken, {
         recordId,
