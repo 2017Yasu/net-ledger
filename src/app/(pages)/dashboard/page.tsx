@@ -18,12 +18,21 @@ interface FormattedSalaryRecord {
   grossEarnings: number;
 }
 
+interface ApiSalaryRecord {
+  id: string;
+  month: number;
+  year: number;
+  grossEarnings: string | number;
+  [key: string]: unknown;
+}
+
 const DashboardPage = () => {
   const { accessToken, user } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [latestSalaryRecord, setLatestSalaryRecord] = useState<any | null>(null);
+  const [latestSalaryRecord, setLatestSalaryRecord] =
+    useState<ApiSalaryRecord | null>(null);
   const [salaryHistory, setSalaryHistory] = useState<FormattedSalaryRecord[]>([]);
 
   useEffect(() => {
@@ -38,7 +47,7 @@ const DashboardPage = () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await apiClient.get<any[]>("/api/salary");
+        const response = await apiClient.get<ApiSalaryRecord[]>("/api/salary");
         const records = response.data;
 
         if (records && records.length > 0) {

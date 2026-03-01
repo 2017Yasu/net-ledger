@@ -4,6 +4,9 @@ Auto-generated from current project state. Last updated: 2026-02-28
 
 ## Active Technologies
 
+- TypeScript (latest), Node.js (LTS) + None (Pure TypeScript for Domain Layer). `uuid` (or native `crypto`) for ID generation. (005-domain-layer)
+- Persistence Agnostic (Repository Interfaces only) (005-domain-layer)
+
 - **Frontend:** Next.js 16.1.1 (App Router), React 19.2.3, TypeScript, Material UI 7.3.6, Emotion, Recharts 3.7.0
 - **Backend:** Node.js, Prisma 7.2.0 (PostgreSQL), bcryptjs, jsonwebtoken, next-rate-limit
 - **Testing:** Jest, React Testing Library, Playwright
@@ -42,11 +45,11 @@ specs/          - Feature specifications and planning documents
 
 ## Recent Changes
 
+- 005-domain-layer: Added TypeScript (latest), Node.js (LTS) + None (Pure TypeScript for Domain Layer). `uuid` (or native `crypto`) for ID generation.
+
 - 004-redirect-to-dashboard: Added TypeScript (latest), Node.js (LTS) + Next.js, React, Jest, React Testing Library, Playwright, Material-UI
 
 - 003-user-dashboard: Added TypeScript (latest), Node.js (LTS) + Next.js, React, Material-UI, Prisma, recharts
-
-- 001-salary-recorder: Added TypeScript (latest), Node.js (LTS) + Next.js, React, Material-UI, Jest, React Testing Library, Playwright, ESLint, Prettier
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->
