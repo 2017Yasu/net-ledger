@@ -1,6 +1,13 @@
 "use client";
 
-import { Alert, Box, CircularProgress, Container, Divider, Typography } from "@mui/material";
+import {
+  Alert,
+  Box,
+  CircularProgress,
+  Container,
+  Divider,
+  Typography,
+} from "@mui/material";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -33,7 +40,9 @@ const DashboardPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [latestSalaryRecord, setLatestSalaryRecord] =
     useState<ApiSalaryRecord | null>(null);
-  const [salaryHistory, setSalaryHistory] = useState<FormattedSalaryRecord[]>([]);
+  const [salaryHistory, setSalaryHistory] = useState<FormattedSalaryRecord[]>(
+    [],
+  );
 
   useEffect(() => {
     // Redirect to login if not authenticated
@@ -52,8 +61,8 @@ const DashboardPage = () => {
 
         if (records && records.length > 0) {
           // Sort to find the latest record (by year and then month desc)
-          const sortedRecords = [...records].sort((a, b) =>
-            b.year - a.year || b.month - a.month
+          const sortedRecords = [...records].sort(
+            (a, b) => b.year - a.year || b.month - a.month,
           );
           setLatestSalaryRecord(sortedRecords[0]);
 
@@ -70,13 +79,22 @@ const DashboardPage = () => {
             .map((record) => ({
               month: record.month,
               year: record.year,
-              grossEarnings: typeof record.grossEarnings === 'string' ? parseFloat(record.grossEarnings) : Number(record.grossEarnings),
+              grossEarnings:
+                typeof record.grossEarnings === "string"
+                  ? parseFloat(record.grossEarnings)
+                  : Number(record.grossEarnings),
             }));
 
           setSalaryHistory(historyData);
-          logger.info("Dashboard data fetched successfully", { context: "DashboardPage", userId: user?.id });
+          logger.info("Dashboard data fetched successfully", {
+            context: "DashboardPage",
+            userId: user?.id,
+          });
         } else {
-          logger.info("No salary records found for user", { context: "DashboardPage", userId: user?.id });
+          logger.info("No salary records found for user", {
+            context: "DashboardPage",
+            userId: user?.id,
+          });
         }
       } catch (err) {
         if (axios.isAxiosError(err)) {
@@ -87,11 +105,17 @@ const DashboardPage = () => {
           } else {
             const data = err.response?.data as ApiErrorResponse;
             setError(data?.message || "Failed to fetch dashboard data.");
-            logger.error("Error fetching dashboard data", { context: "DashboardPage", error: data?.message });
+            logger.error("Error fetching dashboard data", {
+              context: "DashboardPage",
+              error: data?.message,
+            });
           }
         } else {
           setError("An unexpected error occurred.");
-          logger.error("Error fetching dashboard data", { context: "DashboardPage", error: String(err) });
+          logger.error("Error fetching dashboard data", {
+            context: "DashboardPage",
+            error: String(err),
+          });
         }
       } finally {
         setLoading(false);
@@ -139,18 +163,24 @@ const DashboardPage = () => {
 
         {latestSalaryRecord ? (
           <SalarySummaryCard
-            grossPay={typeof latestSalaryRecord.grossEarnings === 'string' ? parseFloat(latestSalaryRecord.grossEarnings) : Number(latestSalaryRecord.grossEarnings)}
-            netPay={typeof latestSalaryRecord.netPay === 'string' ? parseFloat(latestSalaryRecord.netPay) : Number(latestSalaryRecord.netPay)}
-            payDate={
-              new Date(
-                latestSalaryRecord.year,
-                latestSalaryRecord.month - 1,
-                1,
-              ).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-              })
+            grossPay={
+              typeof latestSalaryRecord.grossEarnings === "string"
+                ? parseFloat(latestSalaryRecord.grossEarnings)
+                : Number(latestSalaryRecord.grossEarnings)
             }
+            netPay={
+              typeof latestSalaryRecord.netPay === "string"
+                ? parseFloat(latestSalaryRecord.netPay)
+                : Number(latestSalaryRecord.netPay)
+            }
+            payDate={new Date(
+              latestSalaryRecord.year,
+              latestSalaryRecord.month - 1,
+              1,
+            ).toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+            })}
           />
         ) : (
           <Alert severity="info" sx={{ mb: 4 }}>

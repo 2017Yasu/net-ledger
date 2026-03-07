@@ -5,7 +5,7 @@ import { useEffect } from "react";
 
 import ErrorDisplay from "@/components/ErrorDisplay";
 
-export default function Error({
+export default function GlobalError({
   error,
   reset,
 }: {
@@ -22,5 +22,11 @@ export default function Error({
   }, [error, router]);
 
   // Fallback rendering while redirecting
-  return <ErrorDisplay code="500" />;
+  return (
+    <html>
+      <body>
+        <ErrorDisplay code="500" />
+      </body>
+    </html>
+  );
 }

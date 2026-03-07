@@ -49,7 +49,5 @@ specs/          - Feature specifications and planning documents
 
 - 004-redirect-to-dashboard: Added TypeScript (latest), Node.js (LTS) + Next.js, React, Jest, React Testing Library, Playwright, Material-UI
 
-- 003-user-dashboard: Added TypeScript (latest), Node.js (LTS) + Next.js, React, Material-UI, Prisma, recharts
-
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->
