@@ -16,7 +16,8 @@
     {
       "label": "Run Docker Compose",
       "type": "shell",
-      "command": "docker compose -f docker/compose.yml up -d"
+      "command": "docker compose -f docker/compose.yml up -d",
+      "problemMatcher": []
     },
     {
       "label": "Stop Docker Compose",

@@ -3,7 +3,8 @@ import { NextRequest } from "next/server";
 
 import { verifyToken } from "./auth";
 
-const X_USER_ID_HEADER = "X-User-Id"; // Define custom header constant
+// Define custom header constant
+export const X_USER_ID_HEADER = "X-User-Id";
 
 /**
  * Extracts and verifies the access token, returning the userId if valid.
@@ -17,7 +18,7 @@ export function getUserIdFromRequest(
   source: NextRequest | { cookies: ReadonlyRequestCookies },
 ): string | null {
   // 1. Check for X-User-Id header first (set by our proxy after successful auth)
-  if (source instanceof NextRequest) {
+  if (source instanceof Request) {
     const userIdFromHeader = source.headers.get(X_USER_ID_HEADER);
     if (userIdFromHeader) {
       return userIdFromHeader;
